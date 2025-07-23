@@ -96,11 +96,6 @@
             transform: scale(1.03);
             box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
         }
-        .form-input:focus {
-            border-color: #0d9488;
-            box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.2);
-            outline: none;
-        }
     </style>
 </head>
 <body class="bg-[#f8f7f4] text-slate-800 antialiased">
@@ -116,7 +111,7 @@
                 <a href="#solution" class="text-slate-600 hover:text-teal-700 transition-colors">Our Solution</a>
                 <a href="#model" class="text-slate-600 hover:text-teal-700 transition-colors">Our Model</a>
                 <a href="#opportunity" class="text-slate-600 hover:text-teal-700 transition-colors">The Opportunity</a>
-                <button class="request-consultation-btn bg-teal-600 text-white px-5 py-2.5 rounded-full hover:bg-teal-700 transition-all shadow-sm">Partner With Us</button>
+                <a href="#partner" class="bg-teal-600 text-white px-5 py-2.5 rounded-full hover:bg-teal-700 transition-all shadow-sm">Partner With Us</a>
             </div>
             <button id="mobile-menu-button" class="lg:hidden text-slate-700">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
@@ -129,7 +124,7 @@
             <a href="#case-study" class="block py-2 text-slate-600 hover:text-teal-700">Our Approach</a>
             <a href="#opportunity" class="block py-2 text-slate-600 hover:text-teal-700">The Opportunity</a>
             <a href="#team" class="block py-2 text-slate-600 hover:text-teal-700">Our Team</a>
-            <button class="request-consultation-btn block w-full text-left mt-2 bg-teal-600 text-white text-center px-4 py-2 rounded-full hover:bg-teal-700">Partner With Us</button>
+            <a href="#partner" class="block mt-2 bg-teal-600 text-white text-center px-4 py-2 rounded-full hover:bg-teal-700">Partner With Us</a>
         </div>
     </header>
 
@@ -255,11 +250,8 @@
                                 <li class="flex items-start"><span class="text-teal-600 mr-3 mt-1">✓</span><span><strong class="text-slate-700">Proactive Engagement:</strong> We partner with you on communication campaigns and manager training to de-stigmatize care and drive healthy utilization.</span></li>
                                  <li class="flex items-start"><span class="text-teal-600 mr-3 mt-1">✓</span><span><strong class="text-slate-700">Seamless Integration:</strong> Our team works with you to ensure our platform complements your existing HR systems with minimal friction.</span></li>
                             </ul>
-                            <div class="mt-6 border-t pt-4">
-                                <button id="open-gemini-modal-btn" class="w-full bg-teal-600 text-white font-bold text-lg px-4 py-3 rounded-lg hover:bg-teal-700 transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-x-2">
-                                    <span>✨</span>
-                                    <span>Draft an Employee Announcement with AI</span>
-                                </button>
+                            <div class="mt-6 bg-teal-50/50 border-l-4 border-teal-500 p-4 rounded-r-lg">
+                                <p class="font-semibold text-teal-800">Key Takeaway: We act as a strategic advisor, not just a service provider.</p>
                             </div>
                         </div>
                     </div>
@@ -408,7 +400,7 @@
                 <p class="mt-6 text-lg md:text-xl text-teal-100 max-w-3xl mx-auto">
                     The mid-year review period is the perfect time to re-evaluate your well-being strategy. Our responsibility as leaders is to provide support that is not only available but also accessible, trusted, and genuinely effective.
                 </p>
-                <button class="request-consultation-btn mt-10 bg-white text-teal-700 font-bold px-8 py-4 rounded-full text-lg hover:bg-teal-50 transition-all shadow-lg hover:shadow-xl" style="font-family: 'Inter', sans-serif;">
+                <button class="mt-10 bg-white text-teal-700 font-bold px-8 py-4 rounded-full text-lg hover:bg-teal-50 transition-all shadow-lg hover:shadow-xl" style="font-family: 'Inter', sans-serif;">
                     Request a Strategic Consultation
                 </button>
                 <div class="mt-8 text-teal-200">
@@ -426,93 +418,8 @@
         </div>
     </footer>
 
-    <!-- Consultation Modal -->
-    <div id="consultation-modal" class="hidden fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4 transition-opacity duration-300 opacity-0">
-        <div id="modal-content" class="relative w-full max-w-lg rounded-2xl bg-white p-8 shadow-2xl transform scale-95 transition-transform duration-300">
-            <button id="close-modal-btn" class="absolute top-4 right-4 text-slate-500 hover:text-slate-800 transition-colors">
-                <svg class="h-6 w-6 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-            </button>
-            <div id="form-container">
-                <h2 class="text-2xl font-bold text-center text-slate-800">Request a Strategic Consultation</h2>
-                <p class="text-center mt-2 text-slate-600">Let's discuss how we can build resilience in your organization.</p>
-                <form id="lead-form" class="mt-6 space-y-4">
-                    <div>
-                        <label for="name" class="block text-sm font-medium text-slate-700">Full Name</label>
-                        <input type="text" id="name" name="name" class="form-input mt-1 block w-full px-4 py-3 bg-slate-50 border border-slate-300 rounded-lg shadow-sm" required>
-                    </div>
-                    <div>
-                        <label for="email" class="block text-sm font-medium text-slate-700">Work Email</label>
-                        <input type="email" id="email" name="email" class="form-input mt-1 block w-full px-4 py-3 bg-slate-50 border border-slate-300 rounded-lg shadow-sm" required>
-                    </div>
-                    <div>
-                        <label for="company" class="block text-sm font-medium text-slate-700">Company Name</label>
-                        <input type="text" id="company" name="company" class="form-input mt-1 block w-full px-4 py-3 bg-slate-50 border border-slate-300 rounded-lg shadow-sm" required>
-                    </div>
-                    <div>
-                        <button type="submit" id="submit-lead-btn" class="w-full bg-teal-600 text-white font-bold text-lg px-4 py-3 rounded-lg hover:bg-teal-700 transition-all shadow-md hover:shadow-lg flex items-center justify-center">
-                            Submit Request
-                        </button>
-                    </div>
-                </form>
-            </div>
-            <div id="form-success" class="hidden text-center py-8">
-                <div class="flex justify-center items-center h-16 w-16 mx-auto bg-teal-100 rounded-full">
-                    <svg class="h-8 w-8 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-                </div>
-                <h2 class="text-2xl font-bold text-slate-800 mt-4">Thank You!</h2>
-                <p class="text-slate-600 mt-2">Your request has been received. Our team will be in touch shortly.</p>
-            </div>
-        </div>
-    </div>
-
-    <!-- Gemini AI Modal -->
-    <div id="gemini-modal" class="hidden fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4 transition-opacity duration-300 opacity-0">
-        <div id="gemini-modal-content" class="relative w-full max-w-2xl rounded-2xl bg-white p-8 shadow-2xl transform scale-95 transition-transform duration-300">
-             <button id="close-gemini-modal-btn" class="absolute top-4 right-4 text-slate-500 hover:text-slate-800 transition-colors">
-                <svg class="h-6 w-6 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-            </button>
-            <h2 class="text-2xl font-bold text-center text-slate-800">✨ AI-Powered Announcement Draft</h2>
-            <p class="text-center mt-2 text-slate-600">Get a head start on your internal communications.</p>
-            <div class="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                    <label for="gemini-company-name" class="block text-sm font-medium text-slate-700">Your Company Name</label>
-                    <input type="text" id="gemini-company-name" class="form-input mt-1 block w-full px-4 py-3 bg-slate-50 border border-slate-300 rounded-lg shadow-sm" placeholder="e.g., Apex Global">
-                </div>
-                <div>
-                    <label for="gemini-key-challenge" class="block text-sm font-medium text-slate-700">Key Challenge to Address</label>
-                    <input type="text" id="gemini-key-challenge" class="form-input mt-1 block w-full px-4 py-3 bg-slate-50 border border-slate-300 rounded-lg shadow-sm" placeholder="e.g., Employee Burnout">
-                </div>
-            </div>
-            <button id="generate-draft-btn" class="mt-4 w-full bg-teal-600 text-white font-bold text-lg px-4 py-3 rounded-lg hover:bg-teal-700 transition-all shadow-md hover:shadow-lg flex items-center justify-center">
-                Generate Draft
-            </button>
-            <div id="gemini-output-container" class="mt-6 hidden">
-                <div class="flex justify-between items-center">
-                     <h3 class="text-lg font-bold text-slate-800">Generated Announcement Draft</h3>
-                     <button id="copy-draft-btn" class="text-sm bg-slate-100 text-slate-700 px-3 py-1 rounded-md hover:bg-slate-200 transition">Copy Text</button>
-                </div>
-                <textarea id="gemini-output" readonly class="mt-2 w-full h-64 p-4 bg-slate-50 border border-slate-200 rounded-lg resize-none text-sm text-slate-700"></textarea>
-                <p class="text-xs text-slate-400 mt-1 text-center">This is an AI-generated draft. Please review and edit before sending.</p>
-            </div>
-             <div id="gemini-loading" class="hidden mt-6 text-center py-16">
-                <div class="flex justify-center items-center">
-                    <svg class="animate-spin h-8 w-8 text-teal-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
-                    <p class="ml-4 text-slate-600">Generating your draft...</p>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
-        import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
-        import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
-
-        // This function sets up all the interactive elements on the page.
-        function setupPageInteractivity() {
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
             // Mobile menu toggle
             const mobileMenuButton = document.getElementById('mobile-menu-button');
             const mobileMenu = document.getElementById('mobile-menu');
@@ -695,280 +602,6 @@
                     }, 300);
                 }
             });
-
-            // Modal Functionality
-            const consultationModal = document.getElementById('consultation-modal');
-            const modalContent = document.getElementById('modal-content');
-            const ctaButtons = document.querySelectorAll('.request-consultation-btn');
-            const closeModalBtn = document.getElementById('close-modal-btn');
-            const leadForm = document.getElementById('lead-form');
-            
-            const openModal = () => {
-                consultationModal.classList.remove('hidden');
-                setTimeout(() => {
-                    consultationModal.classList.remove('opacity-0');
-                    modalContent.classList.remove('scale-95');
-                }, 10);
-            };
-            
-            const closeModal = () => {
-                const formContainer = document.getElementById('form-container');
-                const formSuccess = document.getElementById('form-success');
-                consultationModal.classList.add('opacity-0');
-                modalContent.classList.add('scale-95');
-                setTimeout(() => {
-                    consultationModal.classList.add('hidden');
-                    // Reset form for next time
-                    formContainer.classList.remove('hidden');
-                    formSuccess.classList.add('hidden');
-                    leadForm.reset();
-                }, 300);
-            };
-
-            ctaButtons.forEach(btn => btn.addEventListener('click', openModal));
-            closeModalBtn.addEventListener('click', closeModal);
-            consultationModal.addEventListener('click', (e) => {
-                if (e.target === consultationModal) {
-                    closeModal();
-                }
-            });
-
-            return { leadForm }; 
-        }
-
-        // This function sets up Firebase and the form submission logic.
-        async function setupFirebase(leadForm, db) {
-            if (!db) {
-                console.error("Firestore is not initialized. Form submission will not work.");
-                return;
-            }
-
-            const submitBtn = document.getElementById('submit-lead-btn');
-            const formContainer = document.getElementById('form-container');
-            const formSuccess = document.getElementById('form-success');
-
-            leadForm.addEventListener('submit', async (e) => {
-                e.preventDefault();
-                
-                submitBtn.disabled = true;
-                submitBtn.innerHTML = `
-                    <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
-                    Submitting...
-                `;
-
-                const leadData = {
-                    name: leadForm.name.value,
-                    email: leadForm.email.value,
-                    company: leadForm.company.value,
-                    submittedAt: serverTimestamp()
-                };
-
-                try {
-                    const docRef = await addDoc(collection(db, "leads"), leadData);
-                    console.log("Lead captured with ID: ", docRef.id);
-
-                    formContainer.classList.add('hidden');
-                    formSuccess.classList.remove('hidden');
-                    setTimeout(() => {
-                        const consultationModal = document.getElementById('consultation-modal');
-                        consultationModal.classList.add('opacity-0');
-                        consultationModal.querySelector('#modal-content').classList.add('scale-95');
-                        setTimeout(() => {
-                            consultationModal.classList.add('hidden');
-                            formContainer.classList.remove('hidden');
-                            formSuccess.classList.add('hidden');
-                            leadForm.reset();
-                        }, 300);
-                    }, 3000);
-
-                } catch (error) {
-                    console.error("Error adding document: ", error);
-                    if (error.code === 'permission-denied') {
-                        const formContainer = document.getElementById('form-container');
-                        const firebaseConfig = { projectId: "lakeside-health-2eed9" }; // Hardcoded for error message
-                        formContainer.innerHTML = `
-                            <h2 class="text-2xl font-bold text-center text-red-600">Configuration Action Required</h2>
-                            <div class="mt-4 text-left text-slate-700 bg-yellow-50 p-4 rounded-lg border border-yellow-200">
-                                <p class="font-semibold">Your Firestore security rules are preventing lead capture.</p>
-                                <p class="mt-2 text-sm">To fix this, please update your Firestore rules:</p>
-                                <ol class="list-decimal list-inside mt-2 space-y-1 text-sm">
-                                    <li>Go to the <a href="https://console.firebase.google.com/project/${firebaseConfig.projectId}/firestore/rules" target="_blank" class="text-blue-600 underline">Firestore Rules Console</a>.</li>
-                                    <li>Replace the existing rules with the following:
-                                        <pre class="bg-slate-100 p-2 rounded mt-1 text-xs overflow-x-auto"><code>rules_version = '2';
-service cloud.firestore {
-  match /databases/{database}/documents {
-    match /leads/{leadId} {
-      allow create: if true;
-    }
-  }
-}</code></pre>
-                                    </li>
-                                    <li>Click <strong>Publish</strong>.</li>
-                                    <li>Once published, please close this modal and try submitting the form again.</li>
-                                </ol>
-                            </div>
-                        `;
-                    } else {
-                        alert("There was an error submitting your request. Please try again.");
-                    }
-                } finally {
-                    submitBtn.disabled = false;
-                    submitBtn.innerHTML = 'Submit Request';
-                }
-            });
-        }
-
-        function setupGeminiModal() {
-            const geminiModal = document.getElementById('gemini-modal');
-            const geminiModalContent = document.getElementById('gemini-modal-content');
-            const openBtn = document.getElementById('open-gemini-modal-btn');
-            const closeBtn = document.getElementById('close-gemini-modal-btn');
-            const generateBtn = document.getElementById('generate-draft-btn');
-            const copyBtn = document.getElementById('copy-draft-btn');
-            const outputContainer = document.getElementById('gemini-output-container');
-            const loadingIndicator = document.getElementById('gemini-loading');
-            const outputTextarea = document.getElementById('gemini-output');
-
-            const openModal = () => {
-                geminiModal.classList.remove('hidden');
-                setTimeout(() => {
-                    geminiModal.classList.remove('opacity-0');
-                    geminiModalContent.classList.remove('scale-95');
-                }, 10);
-            };
-
-            const closeModal = () => {
-                geminiModal.classList.add('opacity-0');
-                geminiModalContent.classList.add('scale-95');
-                setTimeout(() => {
-                    geminiModal.classList.add('hidden');
-                }, 300);
-            };
-
-            openBtn.addEventListener('click', openModal);
-            closeBtn.addEventListener('click', closeModal);
-            geminiModal.addEventListener('click', (e) => {
-                if (e.target === geminiModal) {
-                    closeModal();
-                }
-            });
-
-            copyBtn.addEventListener('click', () => {
-                outputTextarea.select();
-                document.execCommand('copy');
-                copyBtn.textContent = 'Copied!';
-                setTimeout(() => {
-                    copyBtn.textContent = 'Copy Text';
-                }, 2000);
-            });
-
-            generateBtn.addEventListener('click', async () => {
-                const companyName = document.getElementById('gemini-company-name').value || 'our company';
-                const keyChallenge = document.getElementById('gemini-key-challenge').value || 'employee well-being';
-
-                const prompt = `Act as an expert HR communications strategist. Draft an empathetic and professional internal email to all employees of "${companyName}" announcing a new mental health partnership with "Lakeside Health". The tone should be supportive and destigmatizing. The key goal is to build trust and encourage usage.
-
-                The email must include:
-                1. A clear and compelling subject line.
-                2. An opening that acknowledges the importance of mental health, perhaps referencing the challenge of "${keyChallenge}".
-                3. An introduction to Lakeside Health as the new, confidential, and professional mental wellness partner.
-                4. Key benefits: Emphasize that services are 100% confidential, provided by qualified therapists (not coaches), and available at no cost to the employee.
-                5. A clear call to action on how to get started (e.g., "visit our dedicated portal" or "download the app").
-                6. A warm and supportive closing from the HR/Leadership team.
-
-                Format the output as a complete email draft.`;
-
-                loadingIndicator.classList.remove('hidden');
-                outputContainer.classList.add('hidden');
-                generateBtn.disabled = true;
-                generateBtn.textContent = 'Generating...';
-
-                try {
-                    let chatHistory = [{ role: "user", parts: [{ text: prompt }] }];
-                    const payload = { contents: chatHistory };
-                    const apiKey = "";
-                    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
-                    
-                    const response = await fetch(apiUrl, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(payload)
-                    });
-                    
-                    const result = await response.json();
-                    
-                    if (result.candidates && result.candidates.length > 0 &&
-                        result.candidates[0].content && result.candidates[0].content.parts &&
-                        result.candidates[0].content.parts.length > 0) {
-                        const text = result.candidates[0].content.parts[0].text;
-                        outputTextarea.value = text;
-                        outputContainer.classList.remove('hidden');
-                    } else {
-                        outputTextarea.value = "Sorry, we couldn't generate a draft at this time. Please try again.";
-                        outputContainer.classList.remove('hidden');
-                    }
-                } catch (error) {
-                    console.error("Gemini API call failed:", error);
-                    outputTextarea.value = "An error occurred. Please check the console for details.";
-                    outputContainer.classList.remove('hidden');
-                } finally {
-                    loadingIndicator.classList.add('hidden');
-                    generateBtn.disabled = false;
-                    generateBtn.textContent = 'Generate Draft';
-                }
-            });
-        }
-
-        // Main execution block
-        document.addEventListener('DOMContentLoaded', async () => {
-            const { leadForm } = setupPageInteractivity();
-            setupGeminiModal();
-            
-            let db;
-            const firebaseConfig = {
-                apiKey: "AIzaSyC9YLLWA7hb7A23y7g5w87tfPJ-j-mGJlc",
-                authDomain: "lakeside-health-2eed9.firebaseapp.com",
-                projectId: "lakeside-health-2eed9",
-                storageBucket: "lakeside-health-2eed9.appspot.com",
-                messagingSenderId: "118115163034",
-                appId: "1:118115163034:web:111a7bb9ba56fd28787823",
-                measurementId: "G-HS420T4JVC"
-            };
-
-            try {
-                const app = initializeApp(firebaseConfig);
-                const auth = getAuth(app);
-                db = getFirestore(app);
-
-                await signInAnonymously(auth);
-                
-                await setupFirebase(leadForm, db);
-
-            } catch (error) {
-                console.error("Firebase initialization failed:", error);
-                if (error.code === 'auth/configuration-not-found') {
-                    const formContainer = document.getElementById('form-container');
-                    if (formContainer) {
-                        formContainer.innerHTML = `
-                            <h2 class="text-2xl font-bold text-center text-red-600">Configuration Action Required</h2>
-                            <div class="mt-4 text-left text-slate-700 bg-yellow-50 p-4 rounded-lg border border-yellow-200">
-                                <p class="font-semibold">It looks like Anonymous Authentication isn't enabled in your Firebase project.</p>
-                                <p class="mt-2 text-sm">To fix this and enable lead capture, please follow these steps:</p>
-                                <ol class="list-decimal list-inside mt-2 space-y-1 text-sm">
-                                    <li>Go to the <a href="https://console.firebase.google.com/project/${firebaseConfig.projectId}/authentication/providers" target="_blank" class="text-blue-600 underline">Firebase Console</a>.</li>
-                                    <li>Navigate to the <strong>Authentication</strong> section.</li>
-                                    <li>Click on the <strong>Sign-in method</strong> tab.</li>
-                                    <li>Find <strong>Anonymous</strong> in the list and enable it.</li>
-                                    <li>Once enabled, please <strong>refresh this page</strong>.</li>
-                                </ol>
-                            </div>
-                        `;
-                    }
-                }
-            }
         });
     </script>
 </body>
