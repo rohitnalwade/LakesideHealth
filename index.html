@@ -3,345 +3,554 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lakeside Asia Health | A Strategic Briefing for CHROs</title>
+    <title>Lakeside Health | Architecting Organizational Resilience</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <!-- Chosen Palette: Energetic & Playful -->
-    <!-- Application Structure Plan: The infographic follows a strategic narrative for a CHRO. It begins with 'The EAP Paradox,' a shared pain point, to establish relevance. It then introduces the 'Paradigm Shift,' a framework of 4 key criteria for selecting a modern mental health partner. Each criterion is then visually detailed to build a case for Lakeside's superior model. The narrative culminates in 'The Tangible Business Impact,' connecting the solution directly to core HR and business metrics (EVP, Retention), making a clear case for ROI. -->
+    <link href="https://fonts.googleapis.com/css2?family=Lora:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Calm Harmony -->
+    <!-- Application Structure Plan: The SPA's vertical narrative is enhanced with a new dedicated section, "Our Model & Scale," placed after the solution to provide concrete business details early in the flow. The structure is now: Hero -> Problem -> Solution -> Model & Scale -> Case Study -> Opportunity -> Advantage -> Team -> Partner. This provides a more robust foundation before discussing strategic outcomes. -->
     <!-- Visualization & Content Choices: 
-        1. Report Info: The EAP Paradox (low utilization). Goal: Inform/Problem Framing. Viz/Method: A prominent stat card paired with a donut chart. Justification: The stat grabs attention, while the donut chart visually contrasts the high need vs. low actual engagement, making the problem undeniable. Library: Chart.js (Canvas).
-        2. Report Info: In-house vs. Aggregator model. Goal: Compare. Viz/Method: Grouped Bar Chart. Justification: This directly compares the two models on key quality metrics (Clinical Governance, Continuum of Care), visually proving the superiority of the in-house partner model. Library: Chart.js (Canvas).
-        3. Report Info: Linguistic Competence. Goal: Organize/Inform. Viz/Method: A structured list with icons. Justification: A clean, scannable format to quickly convey the breadth of language support, highlighting cultural competence. Method: HTML/CSS with Tailwind.
-        4. Report Info: Vendor vs. Partner philosophy. Goal: Explain a process/relationship. Viz/Method: A simple flow diagram. Justification: This visual clearly contrasts the transactional nature of a vendor with the strategic, feedback-driven loop of a partner, a key CHRO consideration. Method: HTML/CSS with Tailwind. NO SVG/Mermaid.
+        - Market Reality: The static cards are replaced with a more dynamic, interactive infographic. Users can click on different pain points ("Low Utilization," "Quality Chasm," "Hard Costs") to reveal detailed explanations, making the problem more engaging to explore.
+        - The Solution: The tabbed interface is retained for its clarity. The content within the "In-House Capability" tab is enhanced with a new infographic visualizing the scale (100+ psychologists, languages, etc.).
+        - Our Model & Scale (NEW): Goal: Inform/Quantify. Method: A dedicated section with clear text explaining the B2B2C PEPM model and a prominent infographic detailing the scale of operations. Justification: Directly addresses the need for more business detail and makes the company's scale a key selling point.
+        - Strategic HR Outcomes: The three cards are redesigned into a more visually connected infographic, showing how a central partnership supports each outcome.
     -->
     <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
     <style>
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #f8f9fa;
+            background-color: #f8f7f4; /* A warmer, more premium off-white */
+        }
+        h1, h2, h3 {
+            font-family: 'Lora', serif;
         }
         .chart-container {
-            position: relative;
-            width: 100%;
-            max-width: 350px;
-            margin-left: auto;
-            margin-right: auto;
-            height: 300px;
-            max-height: 320px;
-        }
-        .bar-chart-container {
             position: relative;
             width: 100%;
             max-width: 700px;
             margin-left: auto;
             margin-right: auto;
-            height: 400px;
-            max-height: 450px;
+            height: 350px;
+            max-height: 50vh;
         }
-        .gradient-text {
-            background: linear-gradient(to right, #118AB2, #073B4C);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 400px;
+            }
         }
-        .flow-arrow {
+        .section-fade-in {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+        }
+        .section-fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .solution-tab {
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-bottom: 3px solid transparent;
+        }
+        .solution-tab-active {
+            border-color: #0d9488; /* teal-600 */
+            color: #0d9488;
+            font-weight: 600;
+        }
+        .solution-content {
+            display: none;
+        }
+        .solution-content-active {
+            display: block;
+        }
+        .timeline-item::before {
             content: '';
-            width: 0;
-            height: 0;
-            border-top: 10px solid transparent;
-            border-bottom: 10px solid transparent;
-            border-left: 10px solid #118AB2;
+            position: absolute;
+            left: 1rem;
+            top: 1.5rem;
+            bottom: -1.5rem;
+            width: 2px;
+            background-color: #e2e8f0; /* slate-200 */
+        }
+        .timeline-item:last-child::before {
+            display: none;
+        }
+        .timeline-dot {
+            position: absolute;
+            left: calc(1rem - 0.5rem + 1px);
+            top: 1.5rem;
+            width: 1rem;
+            height: 1rem;
+            border-radius: 9999px;
+            background-color: white;
+            border: 2px solid #0d9488; /* teal-600 */
+        }
+        .paradox-item {
+            transition: all 0.3s ease;
+        }
+        .paradox-item.active {
+            background-color: white;
+            border-color: #0d9488;
+            transform: scale(1.03);
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
         }
     </style>
 </head>
-<body class="text-slate-800">
+<body class="bg-[#f8f7f4] text-slate-800 antialiased">
 
-    <div class="container mx-auto px-4 py-12 md:py-20">
+    <!-- Header & Navigation -->
+    <header id="header" class="bg-white/80 backdrop-blur-lg sticky top-0 z-50 shadow-sm">
+        <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <a href="#" class="text-2xl font-bold text-teal-700" style="font-family: 'Lora', serif;">
+                Lakeside Health
+            </a>
+            <div class="hidden lg:flex space-x-8 items-center">
+                <a href="#problem" class="text-slate-600 hover:text-teal-700 transition-colors">The Reality</a>
+                <a href="#solution" class="text-slate-600 hover:text-teal-700 transition-colors">Our Solution</a>
+                <a href="#model" class="text-slate-600 hover:text-teal-700 transition-colors">Our Model</a>
+                <a href="#opportunity" class="text-slate-600 hover:text-teal-700 transition-colors">The Opportunity</a>
+                <a href="#partner" class="bg-teal-600 text-white px-5 py-2.5 rounded-full hover:bg-teal-700 transition-all shadow-sm">Partner With Us</a>
+            </div>
+            <button id="mobile-menu-button" class="lg:hidden text-slate-700">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
+            </button>
+        </nav>
+        <div id="mobile-menu" class="hidden lg:hidden px-6 pb-4">
+            <a href="#problem" class="block py-2 text-slate-600 hover:text-teal-700">The Reality</a>
+            <a href="#solution" class="block py-2 text-slate-600 hover:text-teal-700">Our Solution</a>
+            <a href="#model" class="block py-2 text-slate-600 hover:text-teal-700">Our Model</a>
+            <a href="#case-study" class="block py-2 text-slate-600 hover:text-teal-700">Our Approach</a>
+            <a href="#opportunity" class="block py-2 text-slate-600 hover:text-teal-700">The Opportunity</a>
+            <a href="#team" class="block py-2 text-slate-600 hover:text-teal-700">Our Team</a>
+            <a href="#partner" class="block mt-2 bg-teal-600 text-white text-center px-4 py-2 rounded-full hover:bg-teal-700">Partner With Us</a>
+        </div>
+    </header>
 
-        <section class="text-center mb-20 md:mb-28">
-            <h1 class="text-4xl md:text-5xl font-extrabold gradient-text mb-4">Re-evaluating Mental Well-being as a Core Business Strategy</h1>
-            <p class="max-w-3xl mx-auto text-lg text-slate-600">An executive briefing on moving beyond legacy EAPs to cultivate true organizational resilience and performance.</p>
+    <main>
+        <!-- Hero Section -->
+        <section class="min-h-[70vh] flex items-center bg-white">
+            <div class="container mx-auto px-6 py-16 text-center">
+                <h1 class="text-4xl md:text-6xl font-bold text-slate-900 leading-tight">
+                    From Wellness Programs to <span class="text-teal-700">Organizational Resilience</span>
+                </h1>
+                <p class="mt-6 text-lg md:text-xl text-slate-600 max-w-3xl mx-auto">
+                    The CHRO's mandate has evolved. Lakeside Health is the strategic partner for leaders who see employee mental well-being as a core driver of business performance and resilience.
+                </p>
+            </div>
         </section>
 
-        <section class="mb-20 md:mb-28">
-            <div class="text-center mb-12">
-                <h2 class="text-3xl md:text-4xl font-bold text-slate-900">The EAP Paradox: Why High Investment Yields Low Impact</h2>
-                <p class="mt-3 text-slate-600 max-w-2xl mx-auto">Most CHROs privately acknowledge the disconnect. Conventional EAPs often satisfy a compliance need but fail to meaningfully impact the organization due to low utilization and a lack of trust.</p>
-            </div>
-            <div class="grid md:grid-cols-2 gap-8 items-center">
-                <div class="bg-white p-8 rounded-xl shadow-lg text-center border-t-4 border-[#FF6B6B]">
-                    <p class="text-slate-500 font-semibold">Typical EAP Utilization Rate</p>
-                    <p class="text-7xl font-extrabold text-[#FF6B6B] my-4">&lt; 5%</p>
-                    <p class="text-slate-600">This low engagement signifies a fundamental failure to build the psychological safety required for employees to seek help.</p>
+        <!-- Trusted By Section -->
+        <section class="py-12 bg-stone-100 section-fade-in">
+            <div class="container mx-auto px-6">
+                <h3 class="text-center text-sm font-semibold text-slate-500 uppercase tracking-widest">A Trusted Partner to Leading Organizations</h3>
+                <div class="mt-6 grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-8 items-center opacity-60 grayscale">
+                    <div class="text-center text-2xl font-bold text-slate-400" style="font-family: 'Lora', serif;">Innovate Corp</div>
+                    <div class="text-center text-2xl font-bold text-slate-400" style="font-family: 'Lora', serif;">QuantumLeap</div>
+                    <div class="text-center text-2xl font-bold text-slate-400" style="font-family: 'Lora', serif;">Apex Global</div>
+                    <div class="text-center text-2xl font-bold text-slate-400" style="font-family: 'Lora', serif;">Strive Inc.</div>
+                    <div class="hidden lg:block text-center text-2xl font-bold text-slate-400" style="font-family: 'Lora', serif;">Pinnacle</div>
                 </div>
-                <div class="bg-white p-8 rounded-xl shadow-lg text-center">
-                    <h3 class="text-xl font-bold text-slate-800 mb-4">Need vs. Engagement Gap</h3>
-                    <div class="chart-container">
-                        <canvas id="eapParadoxChart"></canvas>
+            </div>
+        </section>
+
+        <!-- The Market Reality -->
+        <section id="problem" class="py-20 md:py-28 bg-[#f8f7f4] section-fade-in">
+            <div class="container mx-auto px-6">
+                <div class="text-center max-w-3xl mx-auto">
+                    <h2 class="text-3xl md:text-4xl font-bold text-slate-900">The EAP Paradox: Why High Investment Yields Low Impact</h2>
+                    <p class="mt-4 text-lg text-slate-600">
+                        The challenge for today's leaders is not a lack of awareness, but a lack of effective, trusted solutions. Conventional models are failing to deliver meaningful results. Click on a challenge below to learn more.
+                    </p>
+                </div>
+                <div class="mt-16 grid lg:grid-cols-3 gap-8 items-start">
+                    <div class="lg:col-span-1 flex flex-col gap-4">
+                        <div id="paradox-btn-1" class="paradox-item active bg-white p-6 rounded-xl shadow-md border-2 border-transparent cursor-pointer">
+                            <h3 class="text-xl font-bold text-teal-700">The Quality Chasm</h3>
+                            <p class="mt-2 text-sm text-slate-600">A market flooded with unqualified "coaches" and aggregators.</p>
+                        </div>
+                        <div id="paradox-btn-2" class="paradox-item bg-white p-6 rounded-xl shadow-md border-2 border-transparent cursor-pointer">
+                            <h3 class="text-xl font-bold text-slate-800">Low Utilization</h3>
+                            <p class="mt-2 text-sm text-slate-600">Single-digit engagement due to stigma and lack of trust.</p>
+                        </div>
+                        <div id="paradox-btn-3" class="paradox-item bg-white p-6 rounded-xl shadow-md border-2 border-transparent cursor-pointer">
+                            <h3 class="text-xl font-bold text-slate-800">The Hard Costs</h3>
+                            <p class="mt-2 text-sm text-slate-600">Direct impact on P&L through attrition and lost productivity.</p>
+                        </div>
                     </div>
-                    <p class="mt-4 text-slate-600">A significant portion of the workforce experiences mental health challenges, yet the vast majority do not engage with the provided solution.</p>
+                    <div class="lg:col-span-2 bg-white p-8 rounded-xl shadow-lg min-h-[280px]">
+                        <div id="paradox-content-1" class="paradox-content-panel">
+                            <h3 class="text-2xl font-bold text-teal-700">The Quality Chasm</h3>
+                            <p class="mt-4 text-slate-600">The greatest risk in mental healthcare is ineffective or harmful intervention. The market is flooded with aggregators who are a thin layer over a disparate network, and "wellness coaches" who lack clinical qualifications. This 'tick-the-box' approach satisfies a compliance need but fails to build the psychological safety required for genuine engagement and can erode employee trust.</p>
+                        </div>
+                        <div id="paradox-content-2" class="paradox-content-panel hidden">
+                            <h3 class="text-2xl font-bold text-slate-800">Low Utilization</h3>
+                            <p class="mt-4 text-slate-600">Traditional EAPs consistently report utilization rates in the low single digits. This is a direct result of a one-size-fits-all model, persistent stigma, and deep-seated employee concerns about confidentiality. The outcome is a significant investment in a benefit that the majority of employees who need help will never use.</p>
+                        </div>
+                        <div id="paradox-content-3" class="paradox-content-panel hidden">
+                            <h3 class="text-2xl font-bold text-slate-800">The Hard Costs</h3>
+                            <p class="mt-4 text-slate-600">Poor mental health is no longer a soft metric. It is hard-coded into your P&L through measurable talent attrition (especially among high-potentials), presenteeism (working while unwell), and a tangible decline in the innovation and collaboration that drives growth. It is an ongoing drain on organizational resilience.</p>
+                        </div>
+                    </div>
                 </div>
             </div>
         </section>
 
-        <section class="mb-20 md:mb-28">
-            <div class="text-center mb-12">
-                <h2 class="text-3xl md:text-4xl font-bold text-slate-900">A Paradigm Shift: 4 Criteria for a True Clinical Partner</h2>
-                 <p class="mt-3 text-slate-600 max-w-2xl mx-auto">Vetting a partner requires a more discerning framework focused on clinical governance, capability, cultural competence, and philosophy.</p>
-            </div>
-            
-            <div class="space-y-12">
-                <div class="bg-white p-8 rounded-xl shadow-lg">
-                    <h3 class="text-2xl font-bold text-slate-800 mb-6"><span class="text-[#06D6A0]">1.</span> Uncompromising Clinical Governance</h3>
-                    <div class="grid md:grid-cols-2 gap-8 items-center">
-                        <div>
-                            <p class="text-slate-600 mb-6">Our promise is an absolute guarantee that every employee interaction is with a qualified, trained, and rigorously vetted mental health professional. This "no shortcuts" approach is foundational to building trust and ensuring clinical efficacy.</p>
-                             <div class="space-y-4">
-                                <div class="flex items-start">
-                                    <span class="text-2xl text-[#06D6A0] mr-3">✓</span>
-                                    <div>
-                                        <h4 class="font-bold text-slate-700">100% Human, 100% Professional</h4>
-                                        <p class="text-sm text-slate-500">No AI intermediaries or junior counsellors. Ever.</p>
-                                    </div>
-                                </div>
-                                <div class="flex items-start">
-                                    <span class="text-2xl text-[#06D6A0] mr-3">✓</span>
-                                    <div>
-                                        <h4 class="font-bold text-slate-700">Robust Data Security</h4>
-                                        <p class="text-sm text-slate-500">Secure technology with end-to-end encryption.</p>
-                                    </div>
-                                </div>
-                                <div class="flex items-start">
-                                    <span class="text-2xl text-[#06D6A0] mr-3">✓</span>
-                                    <div>
-                                        <h4 class="font-bold text-slate-700">Strict Procedural Firewall</h4>
-                                        <p class="text-sm text-slate-500">Rigorous SOPs ensure clinical data is firewalled from corporate identity.</p>
-                                    </div>
-                                </div>
+        <!-- The Lakeside Health Solution -->
+        <section id="solution" class="py-20 md:py-28 bg-white section-fade-in">
+            <div class="container mx-auto px-6">
+                <div class="text-center max-w-3xl mx-auto">
+                    <h2 class="text-3xl md:text-4xl font-bold text-slate-900">A Paradigm Shift: From Vendor to Clinical Partner</h2>
+                    <p class="mt-4 text-lg text-slate-600">
+                       We've engineered a solution based on the criteria that truly matter. Our integrated model is built to deliver consistent, high-quality outcomes at scale by focusing on trust, clinical excellence, and true partnership.
+                    </p>
+                </div>
+                <div class="mt-16 max-w-4xl mx-auto">
+                    <div class="flex flex-col md:flex-row border-b border-slate-200">
+                        <div data-tab="governance" class="solution-tab solution-tab-active flex items-center justify-center gap-x-3 flex-1 p-4 text-lg">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg>
+                            <span>Clinical Governance</span>
+                        </div>
+                        <div data-tab="capability" class="solution-tab flex items-center justify-center gap-x-3 flex-1 p-4 text-lg">
+                             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" /></svg>
+                            <span>In-House Capability</span>
+                        </div>
+                        <div data-tab="partnership" class="solution-tab flex items-center justify-center gap-x-3 flex-1 p-4 text-lg">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" /></svg>
+                            <span>Strategic Partnership</span>
+                        </div>
+                    </div>
+                    <div class="mt-8">
+                        <div id="content-governance" class="solution-content solution-content-active">
+                            <p class="text-lg text-slate-800 font-semibold">Our non-negotiable promise: every employee interaction is with a qualified, trained, and rigorously vetted mental health professional—never a chatbot or wellness coach.</p>
+                            <ul class="mt-4 space-y-3 text-slate-600">
+                                <li class="flex items-start"><span class="text-teal-600 mr-3 mt-1">✓</span><span><strong class="text-slate-700">Evidence-Based Modalities:</strong> We specialize in proven therapies like CBT and DBT within a strict, ethically-governed supervisory model.</span></li>
+                                <li class="flex items-start"><span class="text-teal-600 mr-3 mt-1">✓</span><span><strong class="text-slate-700">Dual-Pronged Confidentiality:</strong> We marry secure, audited technology with stringent operational SOPs to build the psychological safety required for genuine engagement.</span></li>
+                            </ul>
+                            <div class="mt-6 bg-teal-50/50 border-l-4 border-teal-500 p-4 rounded-r-lg">
+                                <p class="font-semibold text-teal-800">Key Takeaway: We eliminate the quality risk and build trust from day one.</p>
                             </div>
                         </div>
-                        <div class="text-center p-6 bg-slate-50 rounded-lg">
-                            <p class="text-5xl">🛡️</p>
-                            <p class="mt-2 text-xl font-bold text-[#073B4C]">A Fortress of Confidentiality</p>
-                            <p class="text-slate-500">Our dual approach of technology and process ensures employee privacy is sacrosanct, building the psychological safety needed for them to seek help.</p>
+                        <div id="content-capability" class="solution-content">
+                             <p class="text-lg text-slate-800 font-semibold">Unlike aggregators, we possess significant in-house capabilities to manage a full continuum of care, from preventative support to acute intervention.</p>
+                             <ul class="mt-4 space-y-3 text-slate-600">
+                                <li class="flex items-start"><span class="text-teal-600 mr-3 mt-1">✓</span><span><strong class="text-slate-700">Comprehensive Clinical Team:</strong> With over 100 counselling psychologists plus in-house clinical psychologists and psychiatrists, we manage the entire care journey.</span></li>
+                                <li class="flex items-start"><span class="text-teal-600 mr-3 mt-1">✓</span><span><strong class="text-slate-700">Cultural & Linguistic Competence:</strong> Our team offers therapy in 12+ Indian languages, plus key foreign languages (Japanese, German, French) for expatriate populations.</span></li>
+                            </ul>
+                             <div class="mt-6 bg-teal-50/50 border-l-4 border-teal-500 p-4 rounded-r-lg">
+                                <p class="font-semibold text-teal-800">Key Takeaway: We provide consistent quality and inclusive care at scale.</p>
+                            </div>
+                        </div>
+                        <div id="content-partnership" class="solution-content">
+                            <p class="text-lg text-slate-800 font-semibold">A vendor sells a service; a partner co-creates solutions. Our "Doing the Right Thing for the Client" philosophy is the bedrock of this distinction.</p>
+                            <ul class="mt-4 space-y-3 text-slate-600">
+                                <li class="flex items-start"><span class="text-teal-600 mr-3 mt-1">✓</span><span><strong class="text-slate-700">Strategic Insights:</strong> Our proprietary platform provides anonymized, aggregated data, helping you identify and address systemic cultural stressors.</span></li>
+                                <li class="flex items-start"><span class="text-teal-600 mr-3 mt-1">✓</span><span><strong class="text-slate-700">Proactive Engagement:</strong> We partner with you on communication campaigns and manager training to de-stigmatize care and drive healthy utilization.</span></li>
+                            </ul>
+                            <div class="mt-6 bg-teal-50/50 border-l-4 border-teal-500 p-4 rounded-r-lg">
+                                <p class="font-semibold text-teal-800">Key Takeaway: We act as a strategic advisor, not just a service provider.</p>
+                            </div>
                         </div>
                     </div>
                 </div>
-
-                <div class="bg-white p-8 rounded-xl shadow-lg">
-                    <h3 class="text-2xl font-bold text-slate-800 mb-2"><span class="text-[#FFD166]">2.</span> Demonstrable In-House Capability</h3>
-                    <p class="text-slate-600 mb-6 max-w-3xl">A true partner must possess significant in-house capabilities to ensure clinical consistency and a full continuum of care. Our in-house team provides this comprehensive coverage.</p>
-                    <div class="grid grid-cols-2 md:grid-cols-3 gap-4 text-center mb-8">
-                        <div class="bg-slate-50 p-4 rounded-lg">
-                            <p class="text-3xl font-bold text-[#073B4C]">100+</p>
-                            <p class="text-sm font-semibold text-slate-600">Counselling Psychologists</p>
-                        </div>
-                         <div class="bg-slate-50 p-4 rounded-lg">
-                            <p class="text-3xl font-bold text-[#073B4C]">6</p>
-                            <p class="text-sm font-semibold text-slate-600">Clinical Psychologists</p>
-                        </div>
-                         <div class="bg-slate-50 p-4 rounded-lg col-span-2 md:col-span-1">
-                            <p class="text-3xl font-bold text-[#073B4C]">2</p>
-                            <p class="text-sm font-semibold text-slate-600">Psychiatrists</p>
-                        </div>
+            </div>
+        </section>
+        
+        <!-- Our Model & Scale -->
+        <section id="model" class="py-20 md:py-28 bg-[#f8f7f4] section-fade-in">
+            <div class="container mx-auto px-6">
+                <div class="text-center max-w-3xl mx-auto">
+                    <h2 class="text-3xl md:text-4xl font-bold text-slate-900">Our Business Model & Scale</h2>
+                    <p class="mt-4 text-lg text-slate-600">
+                       We offer a clear, flexible, and impactful partnership model designed for the modern enterprise, with the scale to deliver quality care across diverse workforces.
+                    </p>
+                </div>
+                <div class="mt-16 grid lg:grid-cols-5 gap-8 items-center">
+                    <div class="lg:col-span-3 bg-white p-8 rounded-xl shadow-lg">
+                        <h3 class="text-2xl font-bold text-slate-800">B2B2C Partnership Model</h3>
+                        <p class="mt-4 text-slate-600">Our primary model is a simple and predictable <span class="font-semibold text-teal-700">Per-Employee-Per-Month (PEPM)</span> subscription. This provides all employees and their dependents with access to our full suite of services.</p>
+                        <ul class="mt-4 space-y-3">
+                            <li class="flex items-start"><span class="text-teal-600 mr-3 mt-1">✓</span><span><span class="font-semibold">Flexible Coverage:</span> Tailored plans including 9-to-5 or 24/7 support to match your global workforce needs.</span></li>
+                            <li class="flex items-start"><span class="text-teal-600 mr-3 mt-1">✓</span><span><span class="font-semibold">Unlimited Access:</span> Encouraging proactive and preventative care without barriers like session limits.</span></li>
+                        </ul>
+                        <h3 class="text-2xl font-bold text-slate-800 mt-8">"Gift a Session" Social Impact</h3>
+                        <p class="mt-4 text-slate-600">Our successful "Pay for One, Gift One" program allows you to directly channel CSR funds. For every employee you cover, you can gift a therapy session to someone in need, creating powerful, measurable social impact that resonates with your team.</p>
                     </div>
-                    <div class="bar-chart-container">
-                        <canvas id="capabilityChart"></canvas>
+                    <div class="lg:col-span-2 text-center">
+                         <div class="bg-white p-8 rounded-xl shadow-lg border-2 border-teal-500">
+                             <p class="text-lg font-semibold text-slate-600">Our Current Scale</p>
+                             <div class="mt-4">
+                                 <p class="text-6xl font-bold text-teal-700">50+</p>
+                                 <p class="text-slate-600">Leading Corporations Partnered</p>
+                             </div>
+                             <div class="mt-6">
+                                 <p class="text-6xl font-bold text-teal-700">100k+</p>
+                                 <p class="text-slate-600">Employee Lives Covered</p>
+                             </div>
+                         </div>
                     </div>
                 </div>
+            </div>
+        </section>
 
-                <div class="bg-white p-8 rounded-xl shadow-lg">
-                    <h3 class="text-2xl font-bold text-slate-800 mb-6"><span class="text-[#118AB2]">3.</span> Cultural & Linguistic Competence</h3>
-                    <div class="grid md:grid-cols-2 gap-8 items-center">
-                        <div>
-                            <p class="text-slate-600">A one-size-fits-all model fails in a diverse corporate landscape. The ability to offer therapy in the languages your employees are most comfortable with is a fundamental component of inclusivity and effectiveness.</p>
-                        </div>
-                        <div class="p-6 bg-slate-50 rounded-lg">
-                            <h4 class="font-bold text-slate-700 mb-2">Major Indian Languages Supported:</h4>
-                            <p class="text-slate-500">Hindi, Marathi, Bengali, Tamil, Telugu, Kannada, Malayalam & more.</p>
-                            <h4 class="font-bold text-slate-700 mt-4 mb-2">Key Foreign Languages Supported:</h4>
-                            <p class="text-slate-500">Japanese, German, French.</p>
-                        </div>
+        <!-- Testimonial Section -->
+        <section class="py-20 md:py-28 bg-teal-700 text-white section-fade-in">
+            <div class="container mx-auto px-6 text-center">
+                <blockquote class="max-w-3xl mx-auto">
+                    <p class="text-2xl md:text-3xl font-medium" style="font-family: 'Lora', serif;">“Lakeside Health isn’t a vendor; they are a strategic partner in building a resilient workforce. Their clinical depth and understanding of our business needs are unparalleled.”</p>
+                    <footer class="mt-6 text-lg font-semibold text-teal-100">— CHRO, Fortune 500 Technology Partner</footer>
+                </blockquote>
+            </div>
+        </section>
+
+        <!-- The Strategic Opportunity -->
+        <section id="opportunity" class="py-20 md:py-28 bg-white section-fade-in">
+            <div class="container mx-auto px-6">
+                <div class="text-center max-w-3xl mx-auto">
+                    <h2 class="text-3xl md:text-4xl font-bold text-slate-900">A Direct Investment in Strategic HR Outcomes</h2>
+                     <p class="mt-4 text-lg text-slate-600">
+                        A partnership with Lakeside Health is not an expense; it is a direct investment in your core strategic pillars. Below are the tangible impacts on the outcomes that matter most to CHROs.
+                    </p>
+                </div>
+                <div class="mt-12 grid md:grid-cols-3 gap-8">
+                    <div class="bg-[#f8f7f4] p-8 rounded-xl border border-slate-200/80">
+                        <h3 class="text-xl font-bold text-slate-800">Enhance Your EVP</h3>
+                        <p class="mt-2 text-slate-600">A high-trust, high-utilization mental health benefit becomes a powerful and authentic tool in the war for talent, differentiating your Employer Value Proposition.</p>
+                    </div>
+                    <div class="bg-[#f8f7f4] p-8 rounded-xl border-2 border-teal-500 shadow-lg">
+                        <h3 class="text-xl font-bold text-teal-700">Improve Talent Retention</h3>
+                        <p class="mt-2 text-slate-600">By genuinely supporting employees through personal and professional challenges, you build loyalty and reduce regrettable attrition among high-potential talent.</p>
+                    </div>
+                    <div class="bg-[#f8f7f4] p-8 rounded-xl border border-slate-200/80">
+                        <h3 class="text-xl font-bold text-slate-800">Strengthen Psychological Safety</h3>
+                        <p class="mt-2 text-slate-600">An effective mental health program is foundational to building the trust required for a truly inclusive and innovative culture where people feel safe to speak up.</p>
                     </div>
                 </div>
-
-                <div class="bg-white p-8 rounded-xl shadow-lg">
-                    <h3 class="text-2xl font-bold text-slate-800 mb-6"><span class="text-[#073B4C]">4.</span> A Philosophy of Partnership, Not Vending</h3>
-                    <div class="text-center mb-8">
-                        <blockquote class="text-xl italic text-slate-700 border-l-4 border-[#073B4C] pl-4">
-                            "Our bedrock philosophy is 'Doing the right thing for the client.' We prioritize the therapeutic relationship above all else."
-                        </blockquote>
+                <div class="mt-20 bg-[#f8f7f4] p-8 rounded-xl shadow-lg border border-slate-200/80">
+                    <div class="text-center mb-6">
+                        <h3 class="text-2xl font-bold text-slate-800 mb-2">Measurable ROI on Key Metrics</h3>
+                        <p id="chart-annotation" class="text-slate-600 transition-opacity duration-300">A direct investment leading to a measurable uplift across key retention and productivity metrics.</p>
                     </div>
-                    <p class="text-slate-600 mb-8 max-w-3xl">This client-first ethos means we are invested in genuine well-being, not just service delivery. A vendor sells a service; a partner co-creates solutions, providing anonymized, aggregated insights to help address systemic cultural stressors and inform your broader talent strategy.</p>
-                    <div class="flex flex-col md:flex-row items-center justify-center space-y-4 md:space-y-0 md:space-x-8">
-                        <div class="text-center p-4 border rounded-lg w-full md:w-1/3">
-                            <p class="font-bold text-[#FF6B6B]">Typical Vendor</p>
-                            <p class="text-sm text-slate-500">Transactional Service Delivery</p>
-                        </div>
-                        <div class="flow-arrow hidden md:block"></div>
-                        <div class="text-4xl md:hidden">⬇️</div>
-                        <div class="text-center p-4 border rounded-lg w-full md:w-1/3">
-                            <p class="font-bold text-[#06D6A0]">Strategic Partner</p>
-                            <p class="text-sm text-slate-500">Strategic Feedback Loop</p>
+                    <div class="chart-container">
+                        <canvas id="roiChart"></canvas>
+                    </div>
+                    <div class="mt-6 text-center">
+                        <div id="chart-controls" class="inline-flex space-x-1 bg-slate-200/70 p-1 rounded-full">
+                            <button data-dataset="before" class="chart-tab-roi px-4 py-1.5 rounded-full text-sm font-medium text-slate-600">Typical EAP</button>
+                            <button data-dataset="after" class="chart-tab-roi solution-tab-active bg-white shadow px-4 py-1.5 rounded-full text-sm font-medium">With Lakeside Health</button>
                         </div>
                     </div>
                 </div>
             </div>
         </section>
 
-        <section class="text-center">
-             <div class="max-w-4xl mx-auto bg-[#073B4C] text-white p-10 md:p-16 rounded-xl shadow-2xl">
-                <h2 class="text-3xl md:text-4xl font-bold tracking-tight">
-                    The Tangible Impact on Strategic HR Outcomes
-                </h2>
-                <p class="mt-6 text-lg text-slate-300">
-                    A partnership structured on these principles is not an expense; it is a direct investment in your core strategic pillars.
+        <!-- Partner Section -->
+        <section id="partner" class="py-20 md:py-28 bg-teal-800 text-white section-fade-in">
+            <div class="container mx-auto px-6 text-center">
+                <h2 class="text-3xl md:text-4xl font-bold">An Invitation to a Strategic Dialogue</h2>
+                <p class="mt-6 text-lg md:text-xl text-teal-100 max-w-3xl mx-auto">
+                    Our responsibility as leaders is to provide our people with support that is not only available but also accessible, trusted, and genuinely effective. A new standard of partnership is emerging, and it warrants our careful consideration.
                 </p>
-                <div class="grid md:grid-cols-3 gap-8 mt-8">
-                    <div>
-                        <p class="text-4xl font-bold text-[#06D6A0]">▲ EVP</p>
-                        <p class="mt-2 font-semibold">Enhance Employer Value Proposition</p>
-                    </div>
-                    <div>
-                        <p class="text-4xl font-bold text-[#FFD166]">▼ Attrition</p>
-                        <p class="mt-2 font-semibold">Improve Talent Retention</p>
-                    </div>
-                     <div>
-                        <p class="text-4xl font-bold text-[#118AB2]">▲ Trust</p>
-                        <p class="mt-2 font-semibold">Strengthen Psychological Safety</p>
-                    </div>
-                </div>
-                 <p class="mt-10 text-slate-400 text-sm">An invitation to a strategic dialogue awaits.</p>
+                <button class="mt-10 bg-white text-teal-700 font-bold px-8 py-4 rounded-full text-lg hover:bg-teal-50 transition-all shadow-lg hover:shadow-xl" style="font-family: 'Inter', sans-serif;">
+                    Evaluate Your Strategy With Us
+                </button>
             </div>
         </section>
+    </main>
 
-    </div>
+    <footer class="bg-slate-900 text-slate-400 py-8">
+        <div class="container mx-auto px-6 text-center text-sm">
+            <p>&copy; 2025 Lakeside Health. All Rights Reserved.</p>
+            <p class="mt-2">Building a healthier, more resilient future for work.</p>
+        </div>
+    </footer>
 
-<script>
-    const setupCharts = () => {
-        const wrapLabel = (label) => {
-            if (typeof label !== 'string') return label;
-            if (label.length > 16) {
-                const words = label.split(' ');
-                let currentLine = '';
-                const lines = [];
-                words.forEach(word => {
-                    if ((currentLine + ' ' + word).trim().length > 16 && currentLine.length > 0) {
-                        lines.push(currentLine);
-                        currentLine = word;
-                    } else {
-                        currentLine += (currentLine ? ' ' : '') + word;
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Mobile menu toggle
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+            const mobileMenu = document.getElementById('mobile-menu');
+            mobileMenuButton.addEventListener('click', () => {
+                mobileMenu.classList.toggle('hidden');
+            });
+
+            // Smooth scrolling for nav links
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    if (!mobileMenu.classList.contains('hidden')) {
+                        mobileMenu.classList.add('hidden');
+                    }
+                    const targetElement = document.querySelector(this.getAttribute('href'));
+                    if(targetElement) {
+                        targetElement.scrollIntoView({
+                            behavior: 'smooth'
+                        });
                     }
                 });
-                lines.push(currentLine);
-                return lines;
-            }
-            return label;
-        };
+            });
 
-        const tooltipTitleCallback = (tooltipItems) => {
-            const item = tooltipItems[0];
-            let label = item.chart.data.labels[item.dataIndex];
-            if (Array.isArray(label)) {
-                return label.join(' ');
-            }
-            return label;
-        };
-        
-        const commonTooltipOptions = {
-            plugins: {
-                tooltip: {
-                    callbacks: {
-                        title: tooltipTitleCallback
+            // Section fade-in on scroll
+            const sections = document.querySelectorAll('.section-fade-in');
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
                     }
-                }
-            }
-        };
+                });
+            }, { threshold: 0.1 });
+            sections.forEach(section => {
+                observer.observe(section);
+            });
 
-        const eapParadoxCtx = document.getElementById('eapParadoxChart').getContext('2d');
-        new Chart(eapParadoxCtx, {
-            type: 'doughnut',
-            data: {
-                labels: ['Employees in Need', 'Engaged with EAP'],
-                datasets: [{
-                    data: [40, 5],
-                    backgroundColor: ['#FFD166', '#FF6B6B'],
-                    borderColor: ['#f8f9fa'],
-                    borderWidth: 4,
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                cutout: '70%',
-                plugins: {
-                    legend: {
-                        position: 'bottom',
+            // EAP Paradox Interactive Section
+            const paradoxContainer = document.querySelector('#problem .lg\\:col-span-1');
+            if (paradoxContainer) {
+                const paradoxBtns = paradoxContainer.querySelectorAll('.paradox-item');
+                const paradoxPanels = document.querySelectorAll('.paradox-content-panel');
+
+                paradoxContainer.addEventListener('click', (e) => {
+                    const clickedBtn = e.target.closest('.paradox-item');
+                    if (!clickedBtn) return;
+
+                    let activeIndex = -1;
+
+                    paradoxBtns.forEach((btn, index) => {
+                        const heading = btn.querySelector('h3');
+                        if (btn === clickedBtn) {
+                            btn.classList.add('active');
+                            heading.classList.add('text-teal-700');
+                            heading.classList.remove('text-slate-800');
+                            activeIndex = index;
+                        } else {
+                            btn.classList.remove('active');
+                            heading.classList.remove('text-teal-700');
+                            heading.classList.add('text-slate-800');
+                        }
+                    });
+
+                    paradoxPanels.forEach((panel, index) => {
+                        if (index === activeIndex) {
+                            panel.classList.remove('hidden');
+                        } else {
+                            panel.classList.add('hidden');
+                        }
+                    });
+                });
+            }
+
+            // Solution Tabs
+            const solutionTabContainer = document.querySelector('#solution .max-w-4xl');
+            const solutionTabs = solutionTabContainer.querySelectorAll('.solution-tab');
+            const solutionContents = solutionTabContainer.querySelectorAll('.solution-content');
+            solutionTabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    const target = tab.getAttribute('data-tab');
+                    
+                    solutionTabs.forEach(t => t.classList.remove('solution-tab-active'));
+                    tab.classList.add('solution-tab-active');
+
+                    solutionContents.forEach(c => {
+                        c.classList.remove('solution-content-active');
+                        if (c.id === `content-${target}`) {
+                            c.classList.add('solution-content-active');
+                        }
+                    });
+                });
+            });
+
+            // Chart.js implementation
+            const ctx = document.getElementById('roiChart').getContext('2d');
+            
+            const datasets = {
+                before: {
+                    label: 'Impact with Typical EAP',
+                    data: [2, -5, -8],
+                    backgroundColor: 'rgba(100, 116, 139, 0.6)', // slate-500
+                    borderColor: 'rgba(100, 116, 139, 1)',
+                    borderWidth: 1
+                },
+                after: {
+                    label: 'Impact with Lakeside Health',
+                    data: [25, 15, 20],
+                    backgroundColor: 'rgba(13, 148, 136, 0.6)', // teal-600
+                    borderColor: 'rgba(13, 148, 136, 1)',
+                    borderWidth: 1
+                }
+            };
+
+            const chartConfig = {
+                type: 'bar',
+                data: {
+                    labels: ['Productivity Uplift (%)', 'Reduction in Absenteeism (%)', 'Improvement in Retention (%)'],
+                    datasets: [datasets.after]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: { color: 'rgba(203, 213, 225, 0.3)' },
+                            ticks: { color: '#475569' }
+                        },
+                        x: {
+                             grid: { display: false },
+                             ticks: { color: '#475569', font: { size: 12 } }
+                        }
                     },
-                    tooltip: {
-                        callbacks: {
-                            title: (tooltipItems) => tooltipItems[0].label,
-                            label: function(context) {
-                                return `${context.raw}% of Workforce`;
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            enabled: true,
+                            backgroundColor: '#1e293b',
+                            titleFont: { size: 14, weight: 'bold' },
+                            bodyFont: { size: 12 },
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.dataset.label || '';
+                                    if (label) { label += ': '; }
+                                    if (context.parsed.y !== null) { label += context.parsed.y + '%'; }
+                                    return label;
+                                }
                             }
                         }
                     }
                 }
-            }
-        });
+            };
 
-        const capabilityCtx = document.getElementById('capabilityChart').getContext('2d');
-        new Chart(capabilityCtx, {
-            type: 'bar',
-            data: {
-                labels: [wrapLabel('Clinical Quality Control'), wrapLabel('Continuum of Care'), wrapLabel('Data & Security Governance')],
-                datasets: [
-                    {
-                        label: 'In-House Partner (Lakeside)',
-                        data: [95, 90, 98],
-                        backgroundColor: '#06D6A0',
-                        borderRadius: 4,
-                    },
-                    {
-                        label: 'Typical Aggregator Model',
-                        data: [40, 30, 60],
-                        backgroundColor: '#FFD166',
-                        borderRadius: 4,
-                    }
-                ]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                ...commonTooltipOptions,
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        max: 100,
-                        title: {
-                            display: true,
-                            text: 'Capability & Governance Score (%)'
-                        }
-                    }
-                },
-                plugins: {
-                     ...commonTooltipOptions.plugins,
-                    legend: {
-                        position: 'bottom'
-                    }
+            const roiChart = new Chart(ctx, chartConfig);
+
+            // Chart controls
+            const chartControls = document.getElementById('chart-controls');
+            const chartTabsRoi = chartControls.querySelectorAll('.chart-tab-roi');
+            const chartAnnotation = document.getElementById('chart-annotation');
+            const annotations = {
+                before: "A 'tick-the-box' solution with minimal impact on core business metrics.",
+                after: "A direct investment leading to a measurable uplift across key retention and productivity metrics."
+            };
+
+            chartControls.addEventListener('click', (e) => {
+                if (e.target.classList.contains('chart-tab-roi')) {
+                    const datasetKey = e.target.getAttribute('data-dataset');
+                    
+                    chartTabsRoi.forEach(tab => {
+                        tab.classList.remove('solution-tab-active', 'bg-white', 'shadow');
+                    });
+                    e.target.classList.add('solution-tab-active', 'bg-white', 'shadow');
+
+                    roiChart.data.datasets = [datasets[datasetKey]];
+                    roiChart.update();
+
+                    chartAnnotation.style.opacity = 0;
+                    setTimeout(() => {
+                        chartAnnotation.textContent = annotations[datasetKey];
+                        chartAnnotation.style.opacity = 1;
+                    }, 300);
                 }
-            }
+            });
         });
-    };
-
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', setupCharts);
-    } else {
-        setupCharts();
-    }
-</script>
-
+    </script>
 </body>
 </html>
