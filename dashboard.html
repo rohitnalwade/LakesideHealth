@@ -32,7 +32,7 @@
         .gauge-container {
             position: relative;
             width: 100%;
-            height: 200px;
+            height: 180px;
         }
         .kpi-card {
             transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
@@ -59,7 +59,7 @@
     <main class="container mx-auto px-4 lg:px-6 py-8">
         <!-- Filters -->
         <div class="bg-white p-4 rounded-xl shadow-lg mb-8 flex flex-col md:flex-row items-center justify-between space-y-4 md:space-y-0">
-            <div class="flex items-center space-x-4">
+            <div class="flex flex-wrap items-center gap-4">
                 <h3 class="text-lg font-bold">Filters:</h3>
                 <div>
                     <select id="date-filter" class="p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
@@ -77,8 +77,13 @@
                         <option value="HR">HR</option>
                     </select>
                 </div>
+                 <div>
+                    <select id="team-filter" class="p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" disabled>
+                        <option value="All">All Teams</option>
+                    </select>
+                </div>
             </div>
-            <div class="text-xs text-slate-500 italic text-center md:text-right">
+            <div class="text-xs text-slate-500 italic text-center md:text-right mt-4 md:mt-0">
                 🔒 All data is anonymized and aggregated. Minimum group size of 10 required for display.
             </div>
         </div>
@@ -91,39 +96,48 @@
                     <canvas id="wellbeing-gauge"></canvas>
                     <div id="gauge-text" class="absolute inset-0 flex items-center justify-center text-4xl font-black text-slate-800"></div>
                 </div>
-                <p class="text-sm text-center text-slate-500">A composite score based on anonymized clinical assessments.</p>
+                <p id="wellbeing-trend-text" class="text-sm text-center text-slate-500"></p>
             </div>
             <div class="bg-white p-6 rounded-xl shadow-lg kpi-card">
                 <h3 class="text-slate-500 font-semibold">Workforce Engagement Rate</h3>
-                <p id="engagement-rate" class="text-6xl font-black text-blue-700 my-4"></p>
-                <p class="text-sm text-slate-500">Percentage of employees who have utilized the service at least once.</p>
+                <div class="flex items-center justify-center my-4">
+                    <p id="engagement-rate" class="text-6xl font-black text-blue-700"></p>
+                    <span id="engagement-trend-arrow" class="text-2xl ml-2"></span>
+                </div>
+                <p class="text-sm text-slate-500 text-center">Percentage of employees who have utilized the service at least once.</p>
             </div>
             <div class="bg-white p-6 rounded-xl shadow-lg kpi-card">
                 <h3 class="text-slate-500 font-semibold">Top Presenting Issue</h3>
-                <p id="top-issue" class="text-4xl font-black text-slate-800 my-4"></p>
-                <p class="text-sm text-slate-500">The most common challenge identified in therapy sessions.</p>
+                <p id="top-issue" class="text-4xl font-black text-slate-800 my-4 text-center"></p>
+                <p id="top-issue-trend-text" class="text-sm text-center text-slate-500"></p>
+            </div>
+        </div>
+        
+        <!-- AI-Powered Signals -->
+        <div class="bg-white p-6 rounded-xl shadow-lg mb-8">
+            <h3 class="text-xl font-bold mb-4 flex items-center"><span class="text-2xl mr-2">💡</span> AI-Powered Organizational Health Signals</h3>
+            <div id="ai-signals" class="space-y-3 text-slate-600">
+                <!-- AI insights will be populated here -->
             </div>
         </div>
 
+
         <!-- Main Dashboard Grid -->
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <!-- Left Column -->
             <div class="lg:col-span-2 bg-white p-6 rounded-xl shadow-lg">
                 <h3 class="text-xl font-bold mb-4">Workforce Well-being Trend</h3>
                 <div class="chart-container">
                     <canvas id="wellbeing-trend-chart"></canvas>
                 </div>
             </div>
-            <!-- Right Column -->
             <div class="bg-white p-6 rounded-xl shadow-lg">
                 <h3 class="text-xl font-bold mb-4">Top 5 Presenting Issues</h3>
                 <div class="chart-container">
                     <canvas id="issues-chart"></canvas>
                 </div>
             </div>
-            <!-- Full Width Row -->
             <div class="lg:col-span-3 bg-white p-6 rounded-xl shadow-lg">
-                <h3 class="text-xl font-bold mb-4">Key Stressors by Department</h3>
+                <h3 class="text-xl font-bold mb-4">Key Stressors by Department (% of total issues)</h3>
                 <div class="chart-container h-96">
                     <canvas id="stressors-by-dept-chart"></canvas>
                 </div>
@@ -131,26 +145,65 @@
         </div>
     </main>
 <script>
-// Mock Data Generation
+// NEW, MORE REALISTIC MOCK DATA GENERATION
 const MOCK_DATA = {
     issues: ["Work Stress", "Anxiety", "Relationship Issues", "Burnout", "Depression", "Grief"],
-    departments: ["Engineering", "Sales", "Marketing", "HR"],
-    generateDataPoint: (date) => {
-        const department = MOCK_DATA.departments[Math.floor(Math.random() * MOCK_DATA.departments.length)];
-        const issue = MOCK_DATA.issues[Math.floor(Math.random() * MOCK_DATA.issues.length)];
-        const score = 60 + Math.random() * 25; // Score between 60 and 85
-        return { date, department, issue, score };
+    departments: {
+        "Engineering": ["Frontend", "Backend", "DevOps"],
+        "Sales": ["Enterprise", "SMB", "Account Management"],
+        "Marketing": ["Content", "Demand Gen", "Product Marketing"],
+        "HR": ["Recruiting", "People Ops"]
     },
     getDataset: (days) => {
         const data = [];
         const today = new Date();
+        
+        // Define some event periods for anomalies
+        const q3End = new Date(); q3End.setDate(today.getDate() - 30);
+        const q3Start = new Date(); q3Start.setDate(today.getDate() - 90);
+        const productLaunchEnd = new Date(); productLaunchEnd.setDate(today.getDate() - 100);
+        const productLaunchStart = new Date(); productLaunchStart.setDate(today.getDate() - 150);
+
         for (let i = 0; i < days; i++) {
-            const date = new Date(today);
+            const date = new Date();
             date.setDate(today.getDate() - i);
-            const numPoints = 5 + Math.floor(Math.random() * 10);
-            for (let j = 0; j < numPoints; j++) {
-                data.push(MOCK_DATA.generateDataPoint(date));
-            }
+
+            Object.keys(MOCK_DATA.departments).forEach(dept => {
+                MOCK_DATA.departments[dept].forEach(team => {
+                    const baseActivity = 2 + Math.floor(Math.random() * 2);
+                    for (let j = 0; j < baseActivity; j++) {
+                        // Base issue distribution
+                        let issueWeights = { "Work Stress": 0.3, "Anxiety": 0.2, "Relationship Issues": 0.25, "Burnout": 0.1, "Depression": 0.1, "Grief": 0.05 };
+                        
+                        // Apply event-based anomalies
+                        if (dept === "Sales" && date > q3Start && date < q3End) {
+                            issueWeights["Burnout"] += 0.2;
+                            issueWeights["Work Stress"] += 0.15;
+                        }
+                        if (team === "Frontend" && date > productLaunchStart && date < productLaunchEnd) {
+                            issueWeights["Anxiety"] += 0.2;
+                            issueWeights["Work Stress"] += 0.2;
+                        }
+
+                        const issues = Object.keys(issueWeights);
+                        const totalWeight = Object.values(issueWeights).reduce((a, b) => a + b, 0);
+                        const random = Math.random() * totalWeight;
+                        let cumulative = 0;
+                        let issue = issues[0];
+                        for (const iss of issues) {
+                            cumulative += issueWeights[iss];
+                            if (random < cumulative) { issue = iss; break; }
+                        }
+                        
+                        let score = 75 + (Math.random() - 0.5) * 10;
+                        if (issue === 'Burnout' || issue === 'Depression') score -= 10;
+                        if (issue === 'Anxiety') score -= 5;
+                        if (issue === 'Work Stress') score -= 7;
+
+                        data.push({ date, department: dept, team, issue, score: Math.max(40, Math.min(95, score)) });
+                    }
+                });
+            });
         }
         return data;
     }
@@ -160,9 +213,30 @@ let fullDataset = MOCK_DATA.getDataset(365);
 let charts = {};
 
 document.addEventListener('DOMContentLoaded', () => {
-    initDashboard();
+    const deptFilter = document.getElementById('department-filter');
+    const teamFilter = document.getElementById('team-filter');
+    
+    deptFilter.addEventListener('change', () => {
+        const selectedDept = deptFilter.value;
+        teamFilter.innerHTML = '<option value="All">All Teams</option>';
+        if (selectedDept !== 'All') {
+            MOCK_DATA.departments[selectedDept].forEach(team => {
+                const option = document.createElement('option');
+                option.value = team;
+                option.textContent = team;
+                teamFilter.appendChild(option);
+            });
+            teamFilter.disabled = false;
+        } else {
+            teamFilter.disabled = true;
+        }
+        updateDashboard();
+    });
+
     document.getElementById('date-filter').addEventListener('change', updateDashboard);
-    document.getElementById('department-filter').addEventListener('change', updateDashboard);
+    teamFilter.addEventListener('change', updateDashboard);
+
+    initDashboard();
 });
 
 function initDashboard() {
@@ -172,198 +246,169 @@ function initDashboard() {
 function updateDashboard() {
     const dateFilter = document.getElementById('date-filter').value;
     const deptFilter = document.getElementById('department-filter').value;
+    const teamFilter = document.getElementById('team-filter').value;
 
     const today = new Date();
     const startDate = new Date();
     startDate.setDate(today.getDate() - parseInt(dateFilter));
+    const prevStartDate = new Date();
+    prevStartDate.setDate(startDate.getDate() - parseInt(dateFilter));
 
-    let filteredData = fullDataset.filter(d => d.date >= startDate);
+    let currentPeriodData = fullDataset.filter(d => d.date >= startDate);
+    let prevPeriodData = fullDataset.filter(d => d.date >= prevStartDate && d.date < startDate);
+
     if (deptFilter !== 'All') {
-        filteredData = filteredData.filter(d => d.department === deptFilter);
+        currentPeriodData = currentPeriodData.filter(d => d.department === deptFilter);
+        prevPeriodData = prevPeriodData.filter(d => d.department === deptFilter);
+        if (teamFilter !== 'All') {
+            currentPeriodData = currentPeriodData.filter(d => d.team === teamFilter);
+            prevPeriodData = prevPeriodData.filter(d => d.team === teamFilter);
+        }
     }
-
-    // Destroy old charts before creating new ones
+    
     Object.values(charts).forEach(chart => chart.destroy());
 
-    if (filteredData.length < 10 && deptFilter !== 'All') {
-        // Handle insufficient data for privacy
-        document.querySelector('main').innerHTML = `
-            <div class="text-center p-8 bg-white rounded-xl shadow-lg">
+    const mainContent = document.querySelector('main');
+    if (currentPeriodData.length < 10 && (deptFilter !== 'All' || teamFilter !== 'All')) {
+        mainContent.innerHTML = `<div class="bg-white p-4 rounded-xl shadow-lg mb-8">...</div>` + mainContent.innerHTML.split('</h1>')[1]; // Keep header
+        mainContent.querySelector('.grid').innerHTML = `
+            <div class="col-span-full text-center p-8 bg-white rounded-xl shadow-lg">
                 <h2 class="text-2xl font-bold text-slate-700">Insufficient Data</h2>
-                <p class="text-slate-500 mt-2">To protect anonymity, data for the selected filter ("${deptFilter}") is not displayed as the group size is less than 10. Please select a different filter.</p>
+                <p class="text-slate-500 mt-2">To protect anonymity, data for the selected filter is not displayed as the group size is less than 10. Please select a different filter.</p>
             </div>
         `;
         return;
     }
     
     // KPIs
-    const avgScore = filteredData.reduce((acc, d) => acc + d.score, 0) / filteredData.length;
+    const avgScore = currentPeriodData.length > 0 ? currentPeriodData.reduce((acc, d) => acc + d.score, 0) / currentPeriodData.length : 75;
+    const prevAvgScore = prevPeriodData.length > 0 ? prevPeriodData.reduce((acc, d) => acc + d.score, 0) / prevPeriodData.length : avgScore;
     document.getElementById('gauge-text').textContent = Math.round(avgScore);
-    
+    const scoreTrend = avgScore - prevAvgScore;
+    const wellbeingTrendText = document.getElementById('wellbeing-trend-text');
+    if (Math.abs(scoreTrend) < 0.1) {
+        wellbeingTrendText.textContent = 'Stable vs. previous period';
+        wellbeingTrendText.className = 'text-sm text-center text-slate-500';
+    } else {
+        wellbeingTrendText.textContent = `${scoreTrend > 0 ? '▲' : '▼'} ${Math.abs(scoreTrend).toFixed(1)} pts vs. previous period`;
+        wellbeingTrendText.className = `text-sm text-center ${scoreTrend > 0 ? 'text-green-600' : 'text-red-600'}`;
+    }
+
     const engagementRate = (deptFilter === 'All') ? 78 : 65 + Math.random() * 20;
+    const prevEngagementRate = engagementRate - 2 + Math.random() * 4;
     document.getElementById('engagement-rate').textContent = `${Math.round(engagementRate)}%`;
+    const engagementTrendArrow = document.getElementById('engagement-trend-arrow');
+    engagementTrendArrow.textContent = engagementRate >= prevEngagementRate ? '▲' : '▼';
+    engagementTrendArrow.className = `text-2xl ml-2 ${engagementRate >= prevEngagementRate ? 'text-green-600' : 'text-red-600'}`;
 
-    const issueCounts = filteredData.reduce((acc, d) => {
-        acc[d.issue] = (acc[d.issue] || 0) + 1;
-        return acc;
-    }, {});
-    const topIssue = Object.keys(issueCounts).reduce((a, b) => issueCounts[a] > issueCounts[b] ? a : b, 'N/A');
+    const issueCounts = currentPeriodData.reduce((acc, d) => { acc[d.issue] = (acc[d.issue] || 0) + 1; return acc; }, {});
+    const prevIssueCounts = prevPeriodData.reduce((acc, d) => { acc[d.issue] = (acc[d.issue] || 0) + 1; return acc; }, {});
+    const topIssue = Object.keys(issueCounts).length > 0 ? Object.keys(issueCounts).reduce((a, b) => issueCounts[a] > issueCounts[b] ? a : b) : 'N/A';
     document.getElementById('top-issue').textContent = topIssue;
+    const topIssuePrevCount = prevIssueCounts[topIssue] || 0;
+    const topIssueCurrCount = issueCounts[topIssue] || 0;
+    const topIssueTrend = topIssueCurrCount - topIssuePrevCount;
+    const topIssueTrendText = document.getElementById('top-issue-trend-text');
+    if (Math.abs(topIssueTrend) > 0) {
+        topIssueTrendText.textContent = `${topIssueTrend > 0 ? '▲' : '▼'} ${Math.abs(topIssueTrend)} sessions vs. previous period`;
+        topIssueTrendText.className = `text-sm text-center ${topIssueTrend > 0 ? 'text-red-600' : 'text-green-600'}`;
+    } else {
+        topIssueTrendText.textContent = 'Stable vs. previous period';
+        topIssueTrendText.className = 'text-sm text-center text-slate-500';
+    }
 
-    // Render Charts
     renderWellbeingGauge(avgScore);
-    renderWellbeingTrend(filteredData, startDate);
+    renderWellbeingTrend(currentPeriodData);
     renderIssuesChart(issueCounts);
-    renderStressorsByDeptChart(filteredData);
+    renderStressorsByDeptChart(fullDataset.filter(d => d.date >= startDate));
+    generateAISignals(fullDataset, startDate);
 }
 
-const commonTooltipOptions = {
-    plugins: {
-        tooltip: {
-            callbacks: {
-                title: function(tooltipItems) {
-                    const item = tooltipItems[0];
-                    let label = item.chart.data.labels[item.dataIndex];
-                    if (Array.isArray(label)) { return label.join(' '); }
-                    return label;
-                }
-            }
-        }
-    }
-};
+const commonTooltipOptions = { plugins: { tooltip: { callbacks: { title: (tooltipItems) => { const item = tooltipItems[0]; let label = item.chart.data.labels[item.dataIndex]; if (Array.isArray(label)) { return label.join(' '); } return label; } } } } };
 
 function renderWellbeingGauge(score) {
     const ctx = document.getElementById('wellbeing-gauge').getContext('2d');
-    charts.gauge = new Chart(ctx, {
-        type: 'doughnut',
-        data: {
-            datasets: [{
-                data: [score, 100 - score],
-                backgroundColor: ['#1D4ED8', '#E5E7EB'],
-                borderColor: ['#fff'],
-                borderWidth: 2,
-                circumference: 180,
-                rotation: 270,
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            cutout: '80%',
-            plugins: { tooltip: { enabled: false } }
-        }
-    });
+    charts.gauge = new Chart(ctx, { type: 'doughnut', data: { datasets: [{ data: [score, 100 - score], backgroundColor: ['#1D4ED8', '#E5E7EB'], borderColor: ['#fff'], borderWidth: 2, circumference: 180, rotation: 270, }] }, options: { responsive: true, maintainAspectRatio: false, cutout: '80%', plugins: { tooltip: { enabled: false } } } });
 }
 
-function renderWellbeingTrend(data, startDate) {
+function renderWellbeingTrend(data) {
     const trendData = {};
-    data.forEach(d => {
-        const dateStr = d.date.toISOString().split('T')[0];
-        if (!trendData[dateStr]) {
-            trendData[dateStr] = { sum: 0, count: 0 };
-        }
-        trendData[dateStr].sum += d.score;
-        trendData[dateStr].count++;
-    });
-
+    data.forEach(d => { const dateStr = d.date.toISOString().split('T')[0]; if (!trendData[dateStr]) { trendData[dateStr] = { sum: 0, count: 0 }; } trendData[dateStr].sum += d.score; trendData[dateStr].count++; });
     const labels = Object.keys(trendData).sort();
     const avgScores = labels.map(label => trendData[label].sum / trendData[label].count);
-
     const ctx = document.getElementById('wellbeing-trend-chart').getContext('2d');
-    charts.trend = new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: labels,
-            datasets: [{
-                label: 'Well-being Score',
-                data: avgScores,
-                borderColor: '#1D4ED8',
-                backgroundColor: 'rgba(29, 78, 216, 0.1)',
-                fill: true,
-                tension: 0.4,
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            scales: {
-                x: { type: 'time', time: { unit: 'month' }, grid: { display: false } },
-                y: { beginAtZero: false, suggestedMin: 50, suggestedMax: 100, title: { display: true, text: 'Avg. Score' } }
-            },
-            ...commonTooltipOptions
-        }
-    });
+    charts.trend = new Chart(ctx, { type: 'line', data: { labels: labels, datasets: [{ label: 'Well-being Score', data: avgScores, borderColor: '#1D4ED8', backgroundColor: 'rgba(29, 78, 216, 0.1)', fill: true, tension: 0.4, }] }, options: { responsive: true, maintainAspectRatio: false, scales: { x: { type: 'time', time: { unit: 'month' }, grid: { display: false } }, y: { beginAtZero: false, suggestedMin: 50, suggestedMax: 100, title: { display: true, text: 'Avg. Score' } } }, ...commonTooltipOptions } });
 }
 
 function renderIssuesChart(issueCounts) {
     const sortedIssues = Object.entries(issueCounts).sort(([,a],[,b]) => b-a).slice(0, 5);
     const labels = sortedIssues.map(issue => issue[0]);
     const data = sortedIssues.map(issue => issue[1]);
-
     const ctx = document.getElementById('issues-chart').getContext('2d');
-    charts.issues = new Chart(ctx, {
-        type: 'bar',
-        data: {
-            labels: labels,
-            datasets: [{
-                label: 'Session Count',
-                data: data,
-                backgroundColor: '#3B82F6',
-                borderRadius: 4,
-            }]
-        },
-        options: {
-            indexAxis: 'y',
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: { legend: { display: false }, ...commonTooltipOptions.plugins },
-            scales: { x: { title: { display: true, text: 'Number of Sessions' } } }
-        }
-    });
+    charts.issues = new Chart(ctx, { type: 'bar', data: { labels: labels, datasets: [{ label: 'Session Count', data: data, backgroundColor: '#3B82F6', borderRadius: 4, }] }, options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, ...commonTooltipOptions.plugins }, scales: { x: { title: { display: true, text: 'Number of Sessions' } } } } });
 }
 
 function renderStressorsByDeptChart(data) {
     const deptStressors = {};
-    MOCK_DATA.departments.forEach(dept => {
-        deptStressors[dept] = {};
-        MOCK_DATA.issues.slice(0, 3).forEach(issue => { // Top 3 issues
-            deptStressors[dept][issue] = 0;
-        });
-    });
-
-    data.forEach(d => {
-        if (deptStressors[d.department] && deptStressors[d.department][d.issue] !== undefined) {
-            deptStressors[d.department][d.issue]++;
-        }
-    });
-
+    const depts = Object.keys(MOCK_DATA.departments);
+    depts.forEach(dept => { deptStressors[dept] = {}; MOCK_DATA.issues.slice(0, 3).forEach(issue => { deptStressors[dept][issue] = 0; }); });
+    data.forEach(d => { if (deptStressors[d.department] && deptStressors[d.department][d.issue] !== undefined) { deptStressors[d.department][d.issue]++; } });
+    
     const topIssues = MOCK_DATA.issues.slice(0, 3);
-    const datasets = topIssues.map((issue, index) => {
-        return {
-            label: issue,
-            data: MOCK_DATA.departments.map(dept => deptStressors[dept][issue]),
-            backgroundColor: ['#1D4ED8', '#3B82F6', '#60A5FA'][index],
-            borderRadius: 4,
-        };
-    });
-
+    const datasets = topIssues.map((issue, index) => ({
+        label: issue,
+        data: depts.map(dept => {
+            const total = Object.values(deptStressors[dept]).reduce((s, c) => s + c, 1);
+            return (deptStressors[dept][issue] / total) * 100;
+        }),
+        backgroundColor: ['#1D4ED8', '#3B82F6', '#60A5FA'][index],
+        borderRadius: 4,
+    }));
     const ctx = document.getElementById('stressors-by-dept-chart').getContext('2d');
-    charts.stressors = new Chart(ctx, {
-        type: 'bar',
-        data: {
-            labels: MOCK_DATA.departments,
-            datasets: datasets
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            scales: {
-                x: { stacked: true, grid: { display: false } },
-                y: { stacked: true, title: { display: true, text: 'Number of Sessions' } }
-            },
-            ...commonTooltipOptions
+    charts.stressors = new Chart(ctx, { type: 'bar', data: { labels: depts, datasets: datasets }, options: { responsive: true, maintainAspectRatio: false, scales: { x: { stacked: true, grid: { display: false } }, y: { stacked: true, title: { display: true, text: '% of Sessions' }, ticks: { callback: value => `${value.toFixed(0)}%` } } }, ...commonTooltipOptions } });
+}
+
+function generateAISignals(data, startDate) {
+    const dateFilterDays = document.getElementById('date-filter').value;
+    const prevStartDate = new Date(startDate);
+    prevStartDate.setDate(startDate.getDate() - dateFilterDays);
+
+    const currentPeriodData = data.filter(d => d.date >= startDate);
+    const prevPeriodData = data.filter(d => d.date >= prevStartDate && d.date < startDate);
+
+    const signals = [];
+    
+    const salesBurnoutCurr = currentPeriodData.filter(d => d.department === 'Sales' && d.issue === 'Burnout').length;
+    const salesBurnoutPrev = prevPeriodData.filter(d => d.department === 'Sales' && d.issue === 'Burnout').length;
+    if (salesBurnoutCurr > salesBurnoutPrev * 1.5 && salesBurnoutCurr > 10) {
+        let signalText;
+        if (salesBurnoutPrev < 10) {
+            signalText = `have increased from ${salesBurnoutPrev} to ${salesBurnoutCurr} sessions.`;
+        } else {
+            const increase = (((salesBurnoutCurr - salesBurnoutPrev) / salesBurnoutPrev) * 100).toFixed(0);
+            signalText = `are up <span class="font-bold text-yellow-600">${increase}%</span> from the previous period.`;
         }
-    });
+        signals.push(`<div class="flex items-start"><span class="text-yellow-500 text-xl mr-3">⚠️</span><div><span class="font-bold">Elevated Burnout in Sales:</span> Reported cases ${signalText} This may indicate high pressure from the recent quarter-end targets. <span class="text-blue-600 cursor-pointer">Recommend: Resilience Workshop.</span></div></div>`);
+    }
+
+    const frontendAnxiety = currentPeriodData.filter(d => d.team === 'Frontend' && d.issue === 'Anxiety').length;
+    const engAnxietyTotal = currentPeriodData.filter(d => d.department === 'Engineering' && d.issue === 'Anxiety').length;
+    if (engAnxietyTotal > 0 && frontendAnxiety > engAnxietyTotal * 0.5 && frontendAnxiety > 10) {
+        signals.push(`<div class="flex items-start"><span class="text-red-500 text-xl mr-3">🔥</span><div><span class="font-bold">Anxiety Cluster in Frontend Team:</span> The Frontend team accounts for over <span class="font-bold text-red-600">${((frontendAnxiety/engAnxietyTotal)*100).toFixed(0)}%</span> of all anxiety-related sessions within Engineering. This may be linked to the recent product launch and is a potential attrition risk. <span class="text-blue-600 cursor-pointer">Recommend: Managerial Coaching & Workload Review.</span></div></div>`);
+    }
+
+    const marketingStressCurr = currentPeriodData.filter(d => d.department === 'Marketing' && d.issue === 'Work Stress').length;
+    const marketingStressPrev = prevPeriodData.filter(d => d.department === 'Marketing' && d.issue === 'Work Stress').length;
+    if (marketingStressCurr < marketingStressPrev * 0.75 && marketingStressPrev > 10) {
+        signals.push(`<div class="flex items-start"><span class="text-green-500 text-xl mr-3">✅</span><div><span class="font-bold">Positive Trend in Marketing:</span> Reports of Work Stress in the Marketing department have significantly decreased this period. This may correlate with the recent project management training initiative.</div></div>`);
+    }
+
+    const aiSignalsContainer = document.getElementById('ai-signals');
+    if (signals.length > 0) {
+        aiSignalsContainer.innerHTML = signals.join('');
+    } else {
+        aiSignalsContainer.innerHTML = `<div class="flex items-start"><span class="text-green-500 text-xl mr-3">✅</span><div><span class="font-bold">No Significant Anomalies Detected:</span> Organizational well-being metrics are currently within normal baseline parameters for the selected filters.</div></div>`;
+    }
 }
 
 </script>
