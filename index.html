@@ -4,467 +4,787 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lakeside Health | Building Resilient Workforces Through Trusted Care</title>
+    <meta name="description" content="Lakeside Health is a strategic partner providing comprehensive, confidential mental health services that drive employee well-being and organizational performance.">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700;900&family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+    <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            navy: { 900: '#0B1A2F', 950: '#07111F' },
+            teal: { 400: '#2DD4BF', 500: '#14B8A6' },
+            gold: { 400: '#FBBF24', 500: '#F59E0B' },
+            surface: { 50: '#F8FAFC', 100: '#F1F5F9', 200: '#E2E8F0' }
+          },
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+            serif: ['"DM Serif Display"', 'Georgia', 'serif']
+          }
+        }
+      }
+    }
+    </script>
     <style>
+        :root {
+            --navy-950: #07111F;
+            --navy-900: #0B1A2F;
+            --navy-800: #0F2440;
+            --teal-400: #2DD4BF;
+            --teal-500: #14B8A6;
+            --blue-600: #2563EB;
+            --gold-400: #FBBF24;
+        }
+        * { box-sizing: border-box; }
         body {
-            font-family: 'Lato', sans-serif;
-            background-color: #F9FAFB; /* Gray 50 */
-            color: #1F2937; /* Gray 800 */
+            font-family: 'Inter', system-ui, sans-serif;
+            background-color: #F8FAFC;
+            color: #1E293B;
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
+            overflow-x: hidden;
         }
-        h1, h2, h3, h4, .font-serif {
-            font-family: 'Playfair Display', serif;
-        }
-        .nav-link {
-            transition: color 0.3s ease, border-bottom-color 0.3s ease;
-            border-bottom: 2px solid transparent;
-        }
-        .nav-link.active, .nav-link:hover {
-            color: #1D4ED8; /* Blue 700 */
-            border-bottom-color: #1D4ED8;
-        }
-        .page {
-            display: none;
-        }
-        .page.active {
-            display: block;
-            animation: fadeIn 0.5s ease-in-out;
-        }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        .chart-container {
-            position: relative;
-            width: 100%;
-            max-width: 350px;
-            margin-left: auto;
-            margin-right: auto;
-            height: 300px;
-            max-height: 320px;
-        }
-        .bar-chart-container {
-            position: relative;
-            width: 100%;
-            max-width: 700px;
-            margin-left: auto;
-            margin-right: auto;
-            height: 400px;
-            max-height: 450px;
-        }
-        .waterfall-chart-container {
-            position: relative;
-            width: 100%;
-            max-width: 600px;
-            margin-left: auto;
-            margin-right: auto;
-            height: 400px;
-            max-height: 450px;
-        }
-        .line-chart-container {
-            position: relative;
-            width: 100%;
-            max-width: 800px;
-            margin-left: auto;
-            margin-right: auto;
-            height: 400px;
-            max-height: 450px;
-        }
-        .gradient-text-chiro {
-            background: linear-gradient(to right, #1E40AF, #1E3A8A);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-        .gradient-text-cfo {
-            background: linear-gradient(to right, #1E3A8A, #111827);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-        .flow-line {
-            position: relative;
-            flex-grow: 1;
-            height: 2px;
-            background-color: #BFDBFE; /* Blue 200 */
-        }
-        .flow-line::after {
-            content: '';
-            position: absolute;
-            right: -1px;
-            top: -4px;
-            border-top: 5px solid transparent;
-            border-bottom: 5px solid transparent;
-            border-left: 6px solid #1D4ED8; /* Blue 700 */
-        }
+        h1, h2, h3, .font-serif { font-family: 'DM Serif Display', Georgia, serif; }
+        
+        /* Navigation */
+        .nav-glass { background: rgba(255,255,255,0.75); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-bottom: 1px solid rgba(255,255,255,0.2); transition: all 0.4s ease; }
+        .nav-glass.scrolled { background: rgba(255,255,255,0.92); box-shadow: 0 4px 30px rgba(0,0,0,0.08); }
+        .nav-link { position: relative; transition: color 0.3s ease; }
+        .nav-link::after { content: ''; position: absolute; bottom: -4px; left: 0; width: 0; height: 2px; background: linear-gradient(90deg, var(--teal-400), var(--blue-600)); transition: width 0.3s ease; border-radius: 2px; }
+        .nav-link:hover::after, .nav-link.active::after { width: 100%; }
+        .nav-link:hover, .nav-link.active { color: var(--teal-500); }
+        
+        /* Pages */
+        .page { display: none; }
+        .page.active { display: block; }
+        
+        /* Hero */
+        .hero-gradient { background: linear-gradient(135deg, #07111F 0%, #0B1A2F 30%, #0F2440 60%, #132D52 100%); position: relative; overflow: hidden; }
+        .hero-orb { position: absolute; border-radius: 50%; filter: blur(80px); opacity: 0.3; animation: float 8s ease-in-out infinite; }
+        .hero-orb-1 { width: 500px; height: 500px; background: radial-gradient(circle, #2DD4BF, transparent); top: -10%; right: -5%; animation-delay: 0s; }
+        .hero-orb-2 { width: 400px; height: 400px; background: radial-gradient(circle, #2563EB, transparent); bottom: -15%; left: -5%; animation-delay: -3s; }
+        .hero-orb-3 { width: 300px; height: 300px; background: radial-gradient(circle, #8B5CF6, transparent); top: 40%; left: 40%; animation-delay: -5s; }
+        @keyframes float { 0%, 100% { transform: translateY(0) scale(1); } 50% { transform: translateY(-30px) scale(1.05); } }
+        
+        /* Glow button */
+        .btn-glow { position: relative; background: linear-gradient(135deg, var(--teal-400), var(--blue-600)); color: white; border: none; transition: all 0.3s ease; }
+        .btn-glow::before { content: ''; position: absolute; inset: -2px; border-radius: inherit; background: linear-gradient(135deg, var(--teal-400), var(--blue-600)); filter: blur(12px); opacity: 0; transition: opacity 0.3s ease; z-index: -1; }
+        .btn-glow:hover::before { opacity: 0.6; }
+        .btn-glow:hover { transform: translateY(-2px); box-shadow: 0 10px 40px rgba(45,212,191,0.3); }
+        
+        .btn-outline-light { border: 1px solid rgba(255,255,255,0.3); color: white; transition: all 0.3s ease; }
+        .btn-outline-light:hover { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.5); }
+        
+        /* Glass card */
+        .glass-card { background: rgba(255,255,255,0.7); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.5); border-radius: 1rem; transition: all 0.4s cubic-bezier(0.4,0,0.2,1); }
+        .glass-card:hover { transform: translateY(-6px); box-shadow: 0 20px 60px rgba(0,0,0,0.1); border-color: rgba(45,212,191,0.3); }
+        
+        .dark-glass-card { background: rgba(255,255,255,0.05); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); border-radius: 1rem; transition: all 0.4s ease; }
+        .dark-glass-card:hover { background: rgba(255,255,255,0.08); border-color: rgba(45,212,191,0.3); transform: translateY(-4px); }
+        
+        /* Gradient border card */
+        .gradient-border-card { position: relative; background: white; border-radius: 1rem; overflow: hidden; transition: all 0.4s ease; }
+        .gradient-border-card::before { content: ''; position: absolute; inset: 0; border-radius: 1rem; padding: 1.5px; background: linear-gradient(135deg, transparent 30%, var(--teal-400), var(--blue-600)); -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0); mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0); -webkit-mask-composite: xor; mask-composite: exclude; opacity: 0; transition: opacity 0.4s ease; }
+        .gradient-border-card:hover::before { opacity: 1; }
+        .gradient-border-card:hover { transform: translateY(-4px); box-shadow: 0 20px 60px rgba(0,0,0,0.08); }
+        
+        /* Scroll reveal */
+        .reveal { opacity: 0; transform: translateY(40px); transition: all 0.8s cubic-bezier(0.4,0,0.2,1); }
+        .reveal.visible { opacity: 1; transform: translateY(0); }
+        .reveal-left { opacity: 0; transform: translateX(-40px); transition: all 0.8s cubic-bezier(0.4,0,0.2,1); }
+        .reveal-left.visible { opacity: 1; transform: translateX(0); }
+        .reveal-right { opacity: 0; transform: translateX(40px); transition: all 0.8s cubic-bezier(0.4,0,0.2,1); }
+        .reveal-right.visible { opacity: 1; transform: translateX(0); }
+        .reveal-scale { opacity: 0; transform: scale(0.9); transition: all 0.8s cubic-bezier(0.4,0,0.2,1); }
+        .reveal-scale.visible { opacity: 1; transform: scale(1); }
+        
+        /* Section gradients */
+        .section-dark { background: linear-gradient(180deg, #07111F, #0F2440); color: white; }
+        .section-gradient { background: linear-gradient(180deg, #F8FAFC, #EFF6FF, #F8FAFC); }
+        
+        /* Gradient text */
+        .gradient-text { background: linear-gradient(135deg, #2DD4BF, #2563EB); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        .gradient-text-warm { background: linear-gradient(135deg, #2563EB, #0B1A2F); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        
+        /* Timeline stepper */
+        .stepper-line { position: relative; }
+        .stepper-line::after { content: ''; position: absolute; top: 50%; right: -2rem; width: 4rem; height: 2px; background: linear-gradient(90deg, var(--teal-400), var(--blue-600)); }
+        
+        /* Icon containers */
+        .icon-box { width: 56px; height: 56px; border-radius: 14px; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, rgba(45,212,191,0.15), rgba(37,99,235,0.12)); flex-shrink: 0; }
+        .icon-box svg { width: 30px; height: 30px; }
+        
+        /* Chart containers (preserved) */
+        .chart-container { position: relative; width: 100%; max-width: 350px; margin: 0 auto; height: 300px; max-height: 320px; }
+        .bar-chart-container { position: relative; width: 100%; max-width: 700px; margin: 0 auto; height: 400px; max-height: 450px; }
+        .waterfall-chart-container { position: relative; width: 100%; max-width: 600px; margin: 0 auto; height: 400px; max-height: 450px; }
+        .line-chart-container { position: relative; width: 100%; max-width: 800px; margin: 0 auto; height: 400px; max-height: 450px; }
+        .gradient-text-chiro { background: linear-gradient(to right, #14B8A6, #2563EB); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .gradient-text-cfo { background: linear-gradient(to right, #2563EB, #07111F); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        
+        /* Flow line (preserved for stepper) */
+        .flow-line { position: relative; flex-grow: 1; height: 2px; background: linear-gradient(90deg, var(--teal-400), var(--blue-600)); }
+        .flow-line::after { content: ''; position: absolute; right: -1px; top: -4px; border-top: 5px solid transparent; border-bottom: 5px solid transparent; border-left: 6px solid var(--blue-600); }
+        
+        /* Form styles */
+        .form-input { width: 100%; padding: 0.75rem 1rem; border: 1.5px solid #E2E8F0; border-radius: 0.75rem; font-family: 'Inter', sans-serif; font-size: 0.95rem; transition: all 0.3s ease; background: white; }
+        .form-input:focus { outline: none; border-color: var(--teal-400); box-shadow: 0 0 0 3px rgba(45,212,191,0.15); }
+        .form-input.dark-input { background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.15); color: white; }
+        .form-input.dark-input:focus { border-color: var(--teal-400); box-shadow: 0 0 0 3px rgba(45,212,191,0.2); }
+        .form-input.dark-input::placeholder { color: #94a3b8; }
+        .form-input.dark-input option { background: #0B1A2F; color: white; }
+        .form-input.error-input { border-color: #ef4444 !important; box-shadow: 0 0 0 3px rgba(239,68,68,0.15) !important; }
+        .form-error { color: #fca5a5; font-size: 0.75rem; margin-top: 0.25rem; display: none; }
+        .form-error.visible { display: block; }
+        .form-group { position: relative; }
+        .char-counter { position: absolute; bottom: 0.5rem; right: 0.75rem; font-size: 0.7rem; color: #64748b; pointer-events: none; }
+        .char-counter.warn { color: #fbbf24; }
+        .char-counter.over { color: #ef4444; }
+        
+        /* Success animation */
+        .success-checkmark { width: 80px; height: 80px; border-radius: 50%; background: linear-gradient(135deg, var(--teal-400), var(--blue-600)); display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem; animation: scaleIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .success-checkmark svg { width: 40px; height: 40px; stroke: white; stroke-width: 3; fill: none; stroke-dasharray: 60; stroke-dashoffset: 60; animation: drawCheck 0.6s ease 0.3s forwards; }
+        @keyframes scaleIn { 0% { transform: scale(0); } 100% { transform: scale(1); } }
+        @keyframes drawCheck { to { stroke-dashoffset: 0; } }
+        
+        /* Toast notification */
+        .toast { position: fixed; top: 5rem; right: 1.5rem; padding: 1rem 1.5rem; border-radius: 0.75rem; font-size: 0.875rem; font-weight: 500; z-index: 100; transform: translateX(120%); transition: transform 0.4s cubic-bezier(0.4,0,0.2,1); max-width: 380px; }
+        .toast.show { transform: translateX(0); }
+        .toast-success { background: #065f46; color: #d1fae5; border: 1px solid #10b981; }
+        .toast-error { background: #7f1d1d; color: #fecaca; border: 1px solid #ef4444; }
+        
+        /* Spinner */
+        .btn-spinner { display: inline-block; width: 18px; height: 18px; border: 2px solid rgba(255,255,255,0.3); border-top-color: white; border-radius: 50%; animation: spin 0.6s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        
+        /* Badge */
+        .badge { display: inline-flex; align-items: center; gap: 0.375rem; padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; }
+        
+        /* Pulse dot */
+        .pulse-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--teal-400); animation: pulse-ring 2s infinite; }
+        @keyframes pulse-ring { 0% { box-shadow: 0 0 0 0 rgba(45,212,191,0.5); } 70% { box-shadow: 0 0 0 8px rgba(45,212,191,0); } 100% { box-shadow: 0 0 0 0 rgba(45,212,191,0); } }
+        
+        /* Mobile menu */
+        .mobile-menu-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); z-index: 60; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; }
+        .mobile-menu-overlay.open { opacity: 1; pointer-events: auto; }
+        .mobile-menu-panel { position: fixed; top: 0; right: 0; bottom: 0; width: 300px; background: white; z-index: 70; transform: translateX(100%); transition: transform 0.3s ease; padding: 2rem; }
+        .mobile-menu-panel.open { transform: translateX(0); }
     </style>
 </head>
 <body class="antialiased">
 
-    <header class="bg-white shadow-md sticky top-0 z-50">
-        <nav class="container mx-auto px-4 lg:px-6 py-4 flex justify-between items-center">
-            <a href="#home" class="nav-trigger text-2xl font-bold text-slate-800 font-serif">
-                Lakeside <span class="text-blue-700">Health</span>
+    <!-- Global SVG Defs (hidden) — so all icons can reference shared gradients -->
+    <svg style="width:0;height:0;position:absolute" aria-hidden="true">
+        <defs>
+            <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#2DD4BF"/>
+                <stop offset="100%" stop-color="#2563EB"/>
+            </linearGradient>
+        </defs>
+    </svg>
+
+    <!-- Navigation -->
+    <header id="main-nav" class="nav-glass fixed top-0 left-0 right-0 z-50">
+        <nav class="container mx-auto px-4 lg:px-8 py-4 flex justify-between items-center">
+            <a href="#home" class="nav-trigger text-xl font-serif tracking-tight">
+                <span class="text-slate-800">Lakeside</span> <span class="gradient-text font-bold">Health</span>
             </a>
             <div class="hidden lg:flex items-center space-x-8">
-                <a href="#approach" class="nav-link nav-trigger pb-1 font-medium text-slate-600">Our Approach</a>
-                <a href="#capabilities" class="nav-link nav-trigger pb-1 font-medium text-slate-600">Our Capabilities</a>
-                <a href="#business-case" class="nav-link nav-trigger pb-1 font-medium text-slate-600">The Business Case</a>
-                <a href="#about" class="nav-link nav-trigger pb-1 font-medium text-slate-600">About Us</a>
+                <a href="#approach" class="nav-link nav-trigger text-sm font-medium text-slate-600">Our Approach</a>
+                <a href="#capabilities" class="nav-link nav-trigger text-sm font-medium text-slate-600">Our Capabilities</a>
+                <a href="#business-case" class="nav-link nav-trigger text-sm font-medium text-slate-600">The Business Case</a>
+                <a href="#about" class="nav-link nav-trigger text-sm font-medium text-slate-600">About Us</a>
             </div>
-            <a href="#contact" class="nav-trigger hidden lg:inline-block bg-blue-700 text-white px-5 py-2 rounded-lg font-semibold hover:bg-blue-800 transition-colors">
-                Request a Briefing
+            <a href="#contact" class="nav-trigger hidden lg:inline-flex items-center gap-2 btn-glow px-5 py-2.5 rounded-xl text-sm font-semibold">
+                <span class="pulse-dot"></span> Request a Briefing
             </a>
-            <button id="mobile-menu-button" class="lg:hidden text-slate-700">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
+            <button id="mobile-menu-button" class="lg:hidden text-slate-700 p-2" aria-label="Open menu">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"/></svg>
             </button>
         </nav>
-        <div id="mobile-menu" class="hidden lg:hidden">
-            <a href="#approach" class="block nav-trigger py-2 px-4 text-sm hover:bg-slate-100">Our Approach</a>
-            <a href="#capabilities" class="block nav-trigger py-2 px-4 text-sm hover:bg-slate-100">Our Capabilities</a>
-            <a href="#business-case" class="block nav-trigger py-2 px-4 text-sm hover:bg-slate-100">The Business Case</a>
-            <a href="#about" class="block nav-trigger py-2 px-4 text-sm hover:bg-slate-100">About Us</a>
-            <a href="#contact" class="block nav-trigger py-2 px-4 text-sm hover:bg-slate-100">Request a Briefing</a>
-        </div>
     </header>
 
+    <!-- Mobile Menu -->
+    <div id="mobile-overlay" class="mobile-menu-overlay"></div>
+    <div id="mobile-panel" class="mobile-menu-panel">
+        <div class="flex justify-between items-center mb-8">
+            <span class="text-lg font-serif"><span class="text-slate-800">Lakeside</span> <span class="gradient-text font-bold">Health</span></span>
+            <button id="mobile-close" class="text-slate-500 p-2"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button>
+        </div>
+        <div class="space-y-1">
+            <a href="#approach" class="block nav-trigger py-3 px-4 rounded-lg text-slate-700 font-medium hover:bg-slate-50 transition-colors">Our Approach</a>
+            <a href="#capabilities" class="block nav-trigger py-3 px-4 rounded-lg text-slate-700 font-medium hover:bg-slate-50 transition-colors">Our Capabilities</a>
+            <a href="#business-case" class="block nav-trigger py-3 px-4 rounded-lg text-slate-700 font-medium hover:bg-slate-50 transition-colors">The Business Case</a>
+            <a href="#about" class="block nav-trigger py-3 px-4 rounded-lg text-slate-700 font-medium hover:bg-slate-50 transition-colors">About Us</a>
+            <a href="#contact" class="block nav-trigger mt-4 btn-glow text-center py-3 px-4 rounded-xl font-semibold">Request a Briefing</a>
+        </div>
+    </div>
+
     <main>
-        <!-- Home Page -->
+        <!-- ============ HOME PAGE ============ -->
         <div id="home-page" class="page active">
-            <section class="bg-white">
-                <div class="container mx-auto px-4 lg:px-6 py-20 md:py-32 text-center">
-                    <h1 class="text-4xl md:text-6xl font-black leading-tight mb-4">Building Resilient Workforces Through <span class="text-blue-700">Trusted Care</span>.</h1>
-                    <p class="max-w-3xl mx-auto text-lg md:text-xl text-slate-600 leading-relaxed mb-8">
+            <!-- Hero -->
+            <section class="hero-gradient min-h-[90vh] flex items-center pt-20">
+                <div class="hero-orb hero-orb-1"></div>
+                <div class="hero-orb hero-orb-2"></div>
+                <div class="hero-orb hero-orb-3"></div>
+                <div class="container mx-auto px-4 lg:px-8 py-20 md:py-32 text-center relative z-10">
+                    <div class="badge bg-teal-400/10 text-teal-300 border border-teal-400/20 mx-auto mb-6">
+                        <span class="pulse-dot"></span> Trusted by forward-thinking enterprises
+                    </div>
+                    <h1 class="text-4xl md:text-6xl lg:text-7xl font-serif leading-tight mb-6 text-white">
+                        Building Resilient Workforces<br>Through <span class="gradient-text">Trusted Care</span>.
+                    </h1>
+                    <p class="max-w-2xl mx-auto text-base md:text-lg text-slate-300 leading-relaxed mb-10">
                         Lakeside Health is a strategic partner for forward-thinking companies, providing comprehensive, confidential, and clinically excellent mental health services that drive both employee well-being and organizational performance.
                     </p>
-                    <a href="#business-case" class="nav-trigger bg-blue-700 text-white px-8 py-3 rounded-lg font-semibold hover:bg-blue-800 transition-colors">
-                        View the Business Case
-                    </a>
+                    <div class="flex flex-col sm:flex-row gap-4 justify-center items-center">
+                        <a href="#business-case" class="nav-trigger btn-glow px-8 py-3.5 rounded-xl font-semibold text-sm">View the Business Case</a>
+                        <a href="#approach" class="nav-trigger btn-outline-light px-8 py-3.5 rounded-xl font-semibold text-sm">Our Approach →</a>
+                    </div>
                 </div>
             </section>
-            <section class="py-20">
-                <div class="container mx-auto px-4 lg:px-6">
-                    <div class="grid md:grid-cols-3 gap-8 text-center">
-                        <div class="bg-white p-8 rounded-xl shadow-lg">
-                            <p class="text-5xl mb-4 text-slate-400">●</p>
-                            <h3 class="text-2xl font-bold mb-2">Uncompromising Confidentiality</h3>
-                            <p class="text-slate-600 leading-relaxed">Our dual approach of secure technology and rigorous operational protocols ensures employee privacy is sacrosanct.</p>
+
+            <!-- Value Props -->
+            <section class="py-24 section-gradient">
+                <div class="container mx-auto px-4 lg:px-8">
+                    <div class="grid md:grid-cols-3 gap-8">
+                        <div class="gradient-border-card p-8 reveal" style="transition-delay:0.1s">
+                            <div class="icon-box mb-5">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="#0D9488" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                            </div>
+                            <h3 class="text-xl font-bold text-slate-800 mb-3">Uncompromising Confidentiality</h3>
+                            <p class="text-slate-500 leading-relaxed text-sm">Our dual approach of secure technology and rigorous operational protocols ensures employee privacy is sacrosanct.</p>
                         </div>
-                        <div class="bg-white p-8 rounded-xl shadow-lg">
-                            <p class="text-5xl mb-4 text-slate-400">★</p>
-                            <h3 class="text-2xl font-bold mb-2">Clinical Excellence</h3>
-                            <p class="text-slate-600 leading-relaxed">Every interaction is with a qualified, vetted mental health professional. No shortcuts, ever.</p>
+                        <div class="gradient-border-card p-8 reveal" style="transition-delay:0.2s">
+                            <div class="icon-box mb-5">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="#0D9488" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                            </div>
+                            <h3 class="text-xl font-bold text-slate-800 mb-3">Clinical Excellence</h3>
+                            <p class="text-slate-500 leading-relaxed text-sm">Every interaction is with a qualified, vetted mental health professional. No shortcuts, ever.</p>
                         </div>
-                        <div class="bg-white p-8 rounded-xl shadow-lg">
-                            <p class="text-5xl mb-4 text-slate-400">▲</p>
-                            <h3 class="text-2xl font-bold mb-2">Measurable ROI</h3>
-                            <p class="text-slate-600 leading-relaxed">We deliver tangible financial returns by reducing attrition, mitigating productivity loss, and enhancing performance.</p>
+                        <div class="gradient-border-card p-8 reveal" style="transition-delay:0.3s">
+                            <div class="icon-box mb-5">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="#0D9488" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                            </div>
+                            <h3 class="text-xl font-bold text-slate-800 mb-3">Measurable ROI</h3>
+                            <p class="text-slate-500 leading-relaxed text-sm">We deliver tangible financial returns by reducing attrition, mitigating productivity loss, and enhancing performance.</p>
                         </div>
                     </div>
                 </div>
             </section>
         </div>
 
-        <!-- Our Approach Page -->
+        <!-- ============ APPROACH PAGE ============ -->
         <div id="approach-page" class="page">
-            <section class="py-20 bg-white">
-                <div class="container mx-auto px-4 lg:px-6">
-                    <div class="text-center max-w-3xl mx-auto">
-                        <h2 class="text-4xl font-black">Our Approach: A Philosophy of Trust and Clinical Rigor</h2>
-                        <p class="mt-4 text-lg text-slate-600 leading-relaxed">Our model is built on an unwavering commitment to "Doing the Right Thing for the Client." This philosophy informs every aspect of our service, from the clinical modalities we employ to our promise of absolute confidentiality.</p>
-                    </div>
+            <section class="pt-28 pb-20 section-gradient">
+                <div class="container mx-auto px-4 lg:px-8 text-center max-w-3xl reveal">
+                    <div class="badge bg-teal-50 text-teal-700 mx-auto mb-4">Our Philosophy</div>
+                    <h2 class="text-3xl md:text-5xl font-serif mb-4">A Philosophy of Trust and Clinical Rigor</h2>
+                    <p class="text-lg text-slate-500 leading-relaxed">Our model is built on an unwavering commitment to "Doing the Right Thing for the Client." This philosophy informs every aspect of our service.</p>
                 </div>
             </section>
             <section class="py-20">
-                <div class="container mx-auto px-4 lg:px-6 space-y-20">
+                <div class="container mx-auto px-4 lg:px-8 space-y-24 max-w-6xl">
                     <div class="grid md:grid-cols-2 gap-12 items-center">
-                        <div class="prose lg:prose-lg max-w-none">
-                            <h3>The Bedrock: "Doing the Right Thing"</h3>
-                            <p>Our primary responsibility is to the well-being of the individual employee. We prioritize the therapeutic relationship above all else, ensuring it remains a safe, non-judgmental space, completely insulated from corporate performance metrics. This client-first ethos builds profound trust, which is the essential ingredient for therapeutic success and genuine employee engagement.</p>
+                        <div class="reveal-left">
+                            <h3 class="text-2xl font-serif mb-4 text-slate-800">The Bedrock: "Doing the Right Thing"</h3>
+                            <p class="text-slate-500 leading-relaxed">Our primary responsibility is to the well-being of the individual employee. We prioritize the therapeutic relationship above all else, ensuring it remains a safe, non-judgmental space, completely insulated from corporate performance metrics. This client-first ethos builds profound trust.</p>
                         </div>
-                        <div class="bg-white p-8 rounded-xl shadow-lg text-center">
-                            <p class="text-5xl text-slate-400">●</p>
-                            <h4 class="mt-4 text-2xl font-bold text-blue-700">The Therapeutic Alliance</h4>
-                            <p class="text-slate-500 leading-relaxed">We match individuals to the right therapist and modality for their unique needs, rather than enforcing a rigid, one-size-fits-all model.</p>
+                        <div class="gradient-border-card p-8 text-center reveal-right">
+                            <div class="icon-box mx-auto mb-4 w-16 h-16" style="border-radius:50%">
+                                <svg class="w-8 h-8" viewBox="0 0 24 24" fill="none" stroke="#0D9488" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+                            </div>
+                            <h4 class="text-xl font-bold gradient-text mb-2">The Therapeutic Alliance</h4>
+                            <p class="text-slate-500 text-sm leading-relaxed">We match individuals to the right therapist and modality for their unique needs.</p>
                         </div>
                     </div>
                     <div class="grid md:grid-cols-2 gap-12 items-center">
-                         <div class="bg-white p-8 rounded-xl shadow-lg prose max-w-none">
-                            <h4 class="font-bold">Evidence-Based Clinical Methods</h4>
-                            <ul>
-                                <li>Trauma-Informed Cognitive Behavioural Therapy (CBT)</li>
-                                <li>Solution-Focused Brief Therapy (SFBT)</li>
-                                <li>Narrative Therapy</li>
-                                <li>Positive Psychology</li>
+                        <div class="gradient-border-card p-8 reveal-left">
+                            <h4 class="font-bold text-slate-800 mb-4">Evidence-Based Clinical Methods</h4>
+                            <ul class="space-y-3">
+                                <li class="flex items-center gap-3 text-slate-500 text-sm"><span class="w-2 h-2 rounded-full bg-teal-400 flex-shrink-0"></span>Trauma-Informed Cognitive Behavioural Therapy (CBT)</li>
+                                <li class="flex items-center gap-3 text-slate-500 text-sm"><span class="w-2 h-2 rounded-full bg-teal-400 flex-shrink-0"></span>Solution-Focused Brief Therapy (SFBT)</li>
+                                <li class="flex items-center gap-3 text-slate-500 text-sm"><span class="w-2 h-2 rounded-full bg-teal-400 flex-shrink-0"></span>Narrative Therapy</li>
+                                <li class="flex items-center gap-3 text-slate-500 text-sm"><span class="w-2 h-2 rounded-full bg-teal-400 flex-shrink-0"></span>Positive Psychology</li>
                             </ul>
                         </div>
-                        <div class="prose lg:prose-lg max-w-none">
-                            <h3>A Foundation in Proven Science</h3>
-                            <p>Our clinical team utilizes an eclectic, evidence-based approach, drawing from multiple proven modalities to provide tailored, effective support. We focus on what works, ensuring employees receive the highest standard of care informed by contemporary psychological research.</p>
+                        <div class="reveal-right">
+                            <h3 class="text-2xl font-serif mb-4 text-slate-800">A Foundation in Proven Science</h3>
+                            <p class="text-slate-500 leading-relaxed">Our clinical team utilizes an eclectic, evidence-based approach, drawing from multiple proven modalities to provide tailored, effective support. We focus on what works.</p>
                         </div>
                     </div>
                 </div>
             </section>
-            <section class="py-20 bg-white">
-                <div class="container mx-auto px-4 lg:px-6">
-                    <div class="text-center max-w-3xl mx-auto mb-12">
-                        <h2 class="text-3xl font-bold">A Collaborative Care Model for Comprehensive Support</h2>
-                        <p class="mt-4 text-lg text-slate-600 leading-relaxed">Unlike fragmented vendor networks, our in-house, multidisciplinary team works together behind the scenes. This ensures a seamless, stepped-care approach where employees receive the right level of support at the right time.</p>
+            <!-- Collaborative Care -->
+            <section class="py-20 section-gradient">
+                <div class="container mx-auto px-4 lg:px-8 max-w-5xl">
+                    <div class="text-center mb-16 reveal">
+                        <h2 class="text-3xl font-serif mb-4">A Collaborative Care Model</h2>
+                        <p class="text-lg text-slate-500 max-w-2xl mx-auto">Unlike fragmented vendor networks, our multidisciplinary team works together to ensure seamless, stepped care.</p>
                     </div>
-                    <div class="max-w-5xl mx-auto">
-                        <div class="flex flex-col md:flex-row items-center justify-center space-y-8 md:space-y-0 md:space-x-4">
-                            <div class="text-center p-6 bg-slate-50 rounded-lg border border-slate-200 w-full md:w-1/3">
-                                <p class="text-4xl text-slate-400 font-serif font-black">“ ”</p>
-                                <h4 class="text-xl font-bold mt-2">Counselling Psychologists</h4>
-                                <p class="text-sm text-slate-500 mt-1 leading-relaxed">The first point of contact. They are the main guide for talk therapy, helping employees navigate work-life challenges, stress, and relationship issues.</p>
+                    <div class="flex flex-col md:flex-row items-stretch justify-center gap-6 reveal">
+                        <div class="glass-card p-6 text-center flex-1">
+                            <div class="icon-box mx-auto mb-3 w-14 h-14" style="border-radius:50%; background:linear-gradient(135deg,rgba(45,212,191,0.15),rgba(37,99,235,0.15))">
+                                <svg class="w-7 h-7" viewBox="0 0 24 24" fill="none" stroke="#0D9488" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
                             </div>
-                            <div class="hidden md:flex items-center w-1/12 justify-center"><div class="flow-line"></div></div>
-                            <div class="text-3xl md:hidden">⬇️</div>
-                            <div class="text-center p-6 bg-slate-50 rounded-lg border border-slate-200 w-full md:w-1/3">
-                                <p class="text-4xl text-slate-400">Ψ</p>
-                                <h4 class="text-xl font-bold mt-2">Clinical Psychologists</h4>
-                                <p class="text-sm text-slate-500 mt-1 leading-relaxed">When needed, they provide structured treatment and psychometric assessments for more complex conditions, working in tandem with the counselling psychologist.</p>
-                            </div>
-                            <div class="hidden md:flex items-center w-1/12 justify-center"><div class="flow-line"></div></div>
-                            <div class="text-3xl md:hidden">⬇️</div>
-                            <div class="text-center p-6 bg-slate-50 rounded-lg border border-slate-200 w-full md:w-1/3">
-                                <p class="text-4xl text-slate-400 font-bold">+</p>
-                                <h4 class="text-xl font-bold mt-2">Psychiatrists</h4>
-                                <p class="text-sm text-slate-500 mt-1 leading-relaxed">Our medical doctors provide expert diagnosis and medication management for conditions requiring psychiatric intervention, ensuring a holistic treatment plan.</p>
-                            </div>
+                            <h4 class="text-lg font-bold mb-1">Counselling Psychologists</h4>
+                            <p class="text-xs text-slate-500 leading-relaxed">The first point of contact. They guide talk therapy for work-life challenges, stress, and relationship issues.</p>
                         </div>
-                        <p class="text-center mt-8 text-slate-600 leading-relaxed">This integrated approach ensures continuity of care and eliminates the referral friction common in other EAPs, making Lakeside a true long-term partner in employee health.</p>
+                        <div class="hidden md:flex items-center"><div class="flow-line w-12"></div></div>
+                        <div class="flex md:hidden justify-center"><svg class="w-5 h-5 text-teal-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"/></svg></div>
+                        <div class="glass-card p-6 text-center flex-1">
+                            <div class="icon-box mx-auto mb-3 w-14 h-14" style="border-radius:50%; background:linear-gradient(135deg,rgba(45,212,191,0.15),rgba(37,99,235,0.15))">
+                                <svg class="w-7 h-7" viewBox="0 0 24 24" fill="none" stroke="#2563EB" stroke-width="2"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+                            </div>
+                            <h4 class="text-lg font-bold mb-1">Clinical Psychologists</h4>
+                            <p class="text-xs text-slate-500 leading-relaxed">Structured treatment and psychometric assessments for complex conditions, working in tandem with counsellors.</p>
+                        </div>
+                        <div class="hidden md:flex items-center"><div class="flow-line w-12"></div></div>
+                        <div class="flex md:hidden justify-center"><svg class="w-5 h-5 text-teal-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"/></svg></div>
+                        <div class="glass-card p-6 text-center flex-1">
+                            <div class="icon-box mx-auto mb-3 w-14 h-14" style="border-radius:50%; background:linear-gradient(135deg,rgba(45,212,191,0.15),rgba(37,99,235,0.15))">
+                                <svg class="w-7 h-7" viewBox="0 0 24 24" fill="none" stroke="#8B5CF6" stroke-width="2"><path d="M4.8 2.3A.3.3 0 105 2H4a2 2 0 00-2 2v5a2 2 0 002 2h1a2 2 0 002-2V5a2 2 0 00-2-2z"/><path d="M8 15v1a6.5 6.5 0 0011 0v-4"/><line x1="12" y1="9" x2="12" y2="12"/></svg>
+                            </div>
+                            <h4 class="text-lg font-bold mb-1">Psychiatrists</h4>
+                            <p class="text-xs text-slate-500 leading-relaxed">Expert diagnosis and medication management for conditions requiring psychiatric intervention.</p>
+                        </div>
                     </div>
+                    <p class="text-center mt-8 text-slate-500 text-sm reveal">This integrated approach ensures continuity of care and eliminates referral friction.</p>
                 </div>
             </section>
-             <section class="py-20">
-                <div class="container mx-auto px-4 lg:px-6">
-                    <div class="text-center max-w-3xl mx-auto mb-12">
-                        <h2 class="text-3xl font-bold">Designed for the Modern Workforce</h2>
-                        <p class="mt-4 text-lg text-slate-600 leading-relaxed">Our platform ensures equitable, seamless access for your entire workforce, regardless of their location. We meet your employees where they are.</p>
+            <!-- Modern Workforce -->
+            <section class="py-20">
+                <div class="container mx-auto px-4 lg:px-8 max-w-5xl">
+                    <div class="text-center mb-12 reveal">
+                        <h2 class="text-3xl font-serif mb-4">Designed for the Modern Workforce</h2>
+                        <p class="text-lg text-slate-500 max-w-2xl mx-auto">We meet your employees where they are — with equitable, seamless access regardless of location.</p>
                     </div>
-                    <div class="grid md:grid-cols-3 gap-8 text-center max-w-5xl mx-auto">
-                        <div class="bg-white p-8 rounded-xl shadow-lg">
-                            <p class="text-5xl mb-4 text-slate-400">■</p>
-                            <h3 class="text-2xl font-bold mb-2">Video Conferencing</h3>
-                            <p class="text-slate-600 leading-relaxed">Secure, face-to-face therapy sessions for a personal connection.</p>
+                    <div class="grid md:grid-cols-3 gap-6 reveal">
+                        <div class="gradient-border-card p-6 text-center">
+                            <div class="icon-box mx-auto mb-4">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="#0D9488" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+                            </div>
+                            <h3 class="text-lg font-bold mb-2">Video Conferencing</h3>
+                            <p class="text-sm text-slate-500">Secure, face-to-face therapy sessions for a personal connection.</p>
                         </div>
-                        <div class="bg-white p-8 rounded-xl shadow-lg">
-                            <p class="text-5xl mb-4 text-slate-400">●</p>
-                            <h3 class="text-2xl font-bold mb-2">Audio Calls</h3>
-                            <p class="text-slate-600 leading-relaxed">Convenient and private sessions for those on the go.</p>
+                        <div class="gradient-border-card p-6 text-center">
+                            <div class="icon-box mx-auto mb-4">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="#0D9488" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
+                            </div>
+                            <h3 class="text-lg font-bold mb-2">Audio Calls</h3>
+                            <p class="text-sm text-slate-500">Convenient and private sessions for those on the go.</p>
                         </div>
-                        <div class="bg-white p-8 rounded-xl shadow-lg">
-                            <p class="text-5xl mb-4 text-slate-400 font-bold tracking-widest">…</p>
-                            <h3 class="text-2xl font-bold mb-2">Secure Chat</h3>
-                            <p class="text-slate-600 leading-relaxed">Asynchronous support for continuous access to care.</p>
+                        <div class="gradient-border-card p-6 text-center">
+                            <div class="icon-box mx-auto mb-4">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="#0D9488" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+                            </div>
+                            <h3 class="text-lg font-bold mb-2">Secure Chat</h3>
+                            <p class="text-sm text-slate-500">Asynchronous support for continuous access to care.</p>
                         </div>
                     </div>
                 </div>
             </section>
         </div>
 
-        <!-- Our Capabilities Page -->
+        <!-- ============ CAPABILITIES PAGE ============ -->
         <div id="capabilities-page" class="page">
-             <section class="py-20 bg-white">
-                <div class="container mx-auto px-4 lg:px-6">
-                    <div class="text-center max-w-3xl mx-auto">
-                        <h2 class="text-4xl font-black">Demonstrable In-House Capabilities</h2>
-                        <p class="mt-4 text-lg text-slate-600 leading-relaxed">A true partner must possess significant in-house capabilities to ensure clinical consistency, quality control, and a full continuum of care. Our scaled, professional team and robust platform provide this comprehensive coverage.</p>
+            <section class="pt-28 pb-20 section-gradient">
+                <div class="container mx-auto px-4 lg:px-8 text-center max-w-3xl reveal">
+                    <div class="badge bg-blue-50 text-blue-700 mx-auto mb-4">What We Bring</div>
+                    <h2 class="text-3xl md:text-5xl font-serif mb-4">Demonstrable In-House Capabilities</h2>
+                    <p class="text-lg text-slate-500 leading-relaxed">A true partner must possess significant in-house capabilities to ensure clinical consistency, quality control, and a full continuum of care.</p>
+                </div>
+            </section>
+            <!-- Team Numbers -->
+            <section class="py-20">
+                <div class="container mx-auto px-4 lg:px-8 max-w-5xl">
+                    <h3 class="text-2xl font-serif text-center mb-10 reveal">A Scaled, Multidisciplinary Clinical Team</h3>
+                    <div class="grid grid-cols-2 md:grid-cols-3 gap-6 max-w-3xl mx-auto reveal">
+                        <div class="gradient-border-card p-8 text-center">
+                            <p class="text-5xl font-extrabold gradient-text counter" data-target="100" data-suffix="+">0</p>
+                            <p class="mt-2 font-semibold text-slate-600 text-sm">Counselling Psychologists</p>
+                        </div>
+                        <div class="gradient-border-card p-8 text-center">
+                            <p class="text-5xl font-extrabold gradient-text counter" data-target="6">0</p>
+                            <p class="mt-2 font-semibold text-slate-600 text-sm">Clinical Psychologists</p>
+                        </div>
+                        <div class="gradient-border-card p-8 text-center col-span-2 md:col-span-1">
+                            <p class="text-5xl font-extrabold gradient-text counter" data-target="2">0</p>
+                            <p class="mt-2 font-semibold text-slate-600 text-sm">Psychiatrists</p>
+                        </div>
                     </div>
                 </div>
             </section>
-            <section class="py-20">
-                <div class="container mx-auto px-4 lg:px-6 space-y-20">
-                    <div>
-                        <h3 class="text-3xl font-bold text-center text-slate-800 mb-8">A Scaled, Multidisciplinary Clinical Team</h3>
-                        <div class="grid grid-cols-2 md:grid-cols-3 gap-8 text-center max-w-4xl mx-auto">
-                             <div class="bg-white p-6 rounded-xl shadow-lg">
-                                <p class="text-5xl font-black text-blue-700">100+</p>
-                                <p class="mt-2 font-bold text-slate-700">Counselling Psychologists</p>
-                            </div>
-                             <div class="bg-white p-6 rounded-xl shadow-lg">
-                                <p class="text-5xl font-black text-blue-700">6</p>
-                                <p class="mt-2 font-bold text-slate-700">Clinical Psychologists</p>
-                            </div>
-                             <div class="bg-white p-6 rounded-xl shadow-lg col-span-2 md:col-span-1">
-                                <p class="text-5xl font-black text-blue-700">2</p>
-                                <p class="mt-2 font-bold text-slate-700">Psychiatrists</p>
-                            </div>
-                        </div>
-                    </div>
+            <!-- Languages -->
+            <section class="py-20 section-gradient">
+                <div class="container mx-auto px-4 lg:px-8 max-w-5xl">
                     <div class="grid md:grid-cols-2 gap-12 items-center">
-                        <div class="prose lg:prose-lg max-w-none">
-                            <h3 class="font-bold">Cultural & Linguistic Competence</h3>
-                            <p>A one-size-fits-all model fails in a diverse corporate landscape. The ability to offer therapy in the languages your employees are most comfortable with is a fundamental component of inclusivity and effectiveness.</p>
+                        <div class="reveal-left">
+                            <h3 class="text-2xl font-serif mb-4">Cultural & Linguistic Competence</h3>
+                            <p class="text-slate-500 leading-relaxed">A one-size-fits-all model fails in a diverse corporate landscape. We offer therapy in the languages your employees are most comfortable with.</p>
                         </div>
-                        <div class="bg-white p-8 rounded-xl shadow-lg prose max-w-none">
-                            <h4 class="font-bold">Major Indian Languages Supported:</h4>
-                            <p class="text-slate-500">Hindi, Marathi, Bengali, Tamil, Telugu, Kannada, Malayalam & more.</p>
-                            <h4 class="font-bold">Key Foreign Languages Supported:</h4>
-                            <p class="text-slate-500">Japanese, German, French.</p>
+                        <div class="gradient-border-card p-8 reveal-right">
+                            <h4 class="font-bold text-slate-800 mb-3">Major Indian Languages</h4>
+                            <div class="flex flex-wrap gap-2 mb-4">
+                                <span class="badge bg-teal-50 text-teal-700">Hindi</span><span class="badge bg-teal-50 text-teal-700">Marathi</span>
+                                <span class="badge bg-teal-50 text-teal-700">Bengali</span><span class="badge bg-teal-50 text-teal-700">Tamil</span>
+                                <span class="badge bg-teal-50 text-teal-700">Telugu</span><span class="badge bg-teal-50 text-teal-700">Kannada</span>
+                                <span class="badge bg-teal-50 text-teal-700">Malayalam</span><span class="badge bg-slate-100 text-slate-600">& more</span>
+                            </div>
+                            <h4 class="font-bold text-slate-800 mb-3">Key Foreign Languages</h4>
+                            <div class="flex flex-wrap gap-2">
+                                <span class="badge bg-blue-50 text-blue-700">Japanese</span><span class="badge bg-blue-50 text-blue-700">German</span>
+                                <span class="badge bg-blue-50 text-blue-700">French</span>
+                            </div>
                         </div>
                     </div>
                 </div>
             </section>
-            <section class="py-20 bg-white">
-                <div class="container mx-auto px-4 lg:px-6">
-                    <div class="text-center max-w-3xl mx-auto mb-12">
-                        <h2 class="text-3xl font-bold">A Secure, Insight-Driven Technology Platform</h2>
-                        <p class="mt-4 text-lg text-slate-600 leading-relaxed">Our proprietary platform is the engine that enables confidential, high-quality care at scale, while providing you with strategic, anonymized insights.</p>
+            <!-- Technology -->
+            <section class="py-20">
+                <div class="container mx-auto px-4 lg:px-8 max-w-5xl">
+                    <div class="text-center mb-12 reveal">
+                        <h2 class="text-3xl font-serif mb-4">A Secure, Insight-Driven Technology Platform</h2>
+                        <p class="text-lg text-slate-500 max-w-2xl mx-auto">Our proprietary platform enables confidential, high-quality care at scale.</p>
                     </div>
-                    <div class="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
-                        <div class="bg-slate-50 p-8 rounded-xl border border-slate-200">
-                            <p class="text-5xl mb-4 text-slate-400">🔒</p>
-                            <h3 class="text-2xl font-bold mb-2">Secure Data Management</h3>
-                            <p class="text-slate-600 leading-relaxed">We have built a comprehensive, secure IT platform for all client data management. Our commitment is absolute: we will never share individual user data with any employer or their representatives.</p>
+                    <div class="grid md:grid-cols-2 gap-6 reveal">
+                        <div class="gradient-border-card p-8">
+                            <div class="icon-box mb-4">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="#0D9488" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+                            </div>
+                            <h3 class="text-xl font-bold mb-2">Secure Data Management</h3>
+                            <p class="text-slate-500 text-sm leading-relaxed">We have built a comprehensive, secure IT platform. Our commitment is absolute: we will never share individual user data with any employer.</p>
                         </div>
-                        <div class="bg-slate-50 p-8 rounded-xl border border-slate-200">
-                            <p class="text-5xl mb-4 text-slate-400">📊</p>
-                            <h3 class="text-2xl font-bold mb-2">AI-Powered Anonymized Analytics</h3>
-                            <p class="text-slate-600 leading-relaxed">Our high-quality dashboards provide leadership with a strategic overview of workforce well-being trends. This allows your organization to move from a reactive to a proactive stance, addressing systemic issues that erode morale and productivity before they escalate.</p>
+                        <div class="gradient-border-card p-8">
+                            <div class="icon-box mb-4">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="#0D9488" stroke-width="2"><path d="M21 12a9 9 0 11-6.219-8.56"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                            </div>
+                            <h3 class="text-xl font-bold mb-2">AI-Powered Anonymized Analytics</h3>
+                            <p class="text-slate-500 text-sm leading-relaxed">High-quality dashboards provide leadership with a strategic overview of workforce well-being trends, enabling proactive action.</p>
                         </div>
                     </div>
                 </div>
             </section>
         </div>
 
-        <!-- Business Case Page -->
+        <!-- ============ BUSINESS CASE PAGE ============ -->
         <div id="business-case-page" class="page">
-            <section class="py-20 bg-white">
-                <div class="container mx-auto px-4 lg:px-6">
-                    <div class="text-center max-w-3xl mx-auto">
-                        <h2 class="text-4xl font-black">The Business Case for Strategic Investment in Mental Health</h2>
-                        <p class="mt-4 text-lg text-slate-600 leading-relaxed">We provide tailored briefings that translate the value of workforce well-being into the language of your key decision-makers. Explore our strategic analysis for Chief Human Resources Officers and Chief Financial Officers.</p>
-                    </div>
+            <section class="pt-28 pb-20 section-gradient">
+                <div class="container mx-auto px-4 lg:px-8 text-center max-w-3xl reveal">
+                    <div class="badge bg-gold-400/10 text-amber-700 border border-amber-200 mx-auto mb-4">Strategic Value</div>
+                    <h2 class="text-3xl md:text-5xl font-serif mb-4">The Business Case for Strategic Investment</h2>
+                    <p class="text-lg text-slate-500 leading-relaxed">We provide tailored briefings that translate the value of workforce well-being into the language of your key decision-makers.</p>
                 </div>
             </section>
             <section class="py-20">
-                <div class="container mx-auto px-4 lg:px-6 grid md:grid-cols-2 gap-8">
-                    <div class="bg-white p-8 rounded-xl shadow-lg flex flex-col">
-                        <h3 class="text-2xl font-bold">For the CHRO</h3>
-                        <p class="text-slate-600 my-4 flex-grow leading-relaxed">A strategic framework for moving beyond legacy EAPs to cultivate organizational resilience, enhance your EVP, and strengthen psychological safety.</p>
-                        <button data-infographic="chro" class="infographic-trigger mt-4 w-full bg-blue-700 text-white px-5 py-2 rounded-lg font-semibold hover:bg-blue-800 transition-colors">View CHRO Briefing</button>
+                <div class="container mx-auto px-4 lg:px-8 max-w-4xl grid md:grid-cols-2 gap-8 reveal">
+                    <div class="gradient-border-card p-8 flex flex-col">
+                        <div class="icon-box mb-4">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="#0D9488" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+                        </div>
+                        <h3 class="text-xl font-bold mb-2">For the CHRO</h3>
+                        <p class="text-slate-500 text-sm my-3 flex-grow leading-relaxed">A strategic framework for moving beyond legacy EAPs to cultivate organizational resilience, enhance your EVP, and strengthen psychological safety.</p>
+                        <button data-infographic="chro" class="infographic-trigger w-full btn-glow py-3 rounded-xl font-semibold text-sm mt-4">View CHRO Briefing</button>
                     </div>
-                     <div class="bg-white p-8 rounded-xl shadow-lg flex flex-col">
-                        <h3 class="text-2xl font-bold">For the CFO</h3>
-                        <p class="text-slate-600 my-4 flex-grow leading-relaxed">A financial analysis of the hidden P&L impact of workforce mental health, including ROI modeling and a framework for de-risking human capital.</p>
-                        <button data-infographic="cfo" class="infographic-trigger mt-4 w-full bg-blue-700 text-white px-5 py-2 rounded-lg font-semibold hover:bg-blue-800 transition-colors">View CFO Briefing</button>
+                    <div class="gradient-border-card p-8 flex flex-col">
+                        <div class="icon-box mb-4">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="#0D9488" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+                        </div>
+                        <h3 class="text-xl font-bold mb-2">For the CFO</h3>
+                        <p class="text-slate-500 text-sm my-3 flex-grow leading-relaxed">A financial analysis of the hidden P&L impact of workforce mental health, including ROI modeling and a framework for de-risking human capital.</p>
+                        <button data-infographic="cfo" class="infographic-trigger w-full btn-glow py-3 rounded-xl font-semibold text-sm mt-4">View CFO Briefing</button>
                     </div>
                 </div>
-                <div id="infographic-container" class="mt-16"></div>
+                <div id="infographic-container" class="mt-16 max-w-5xl mx-auto px-4"></div>
             </section>
         </div>
 
-        <!-- About Us Page -->
+        <!-- ============ ABOUT PAGE ============ -->
         <div id="about-page" class="page">
-             <section class="py-20 bg-white">
-                <div class="container mx-auto px-4 lg:px-6">
-                    <div class="text-center max-w-3xl mx-auto">
-                        <h2 class="text-4xl font-black">From First Principles: Re-engineering the Approach to Mental Well-being</h2>
-                    </div>
+            <section class="pt-28 pb-20 section-gradient">
+                <div class="container mx-auto px-4 lg:px-8 text-center max-w-3xl reveal">
+                    <div class="badge bg-violet-50 text-violet-700 mx-auto mb-4">Our Story</div>
+                    <h2 class="text-3xl md:text-5xl font-serif mb-4">Re-engineering the Approach to Mental Well-being</h2>
                 </div>
             </section>
-             <section class="py-20">
-                <div class="container mx-auto px-4 lg:px-6">
-                    <div class="bg-white p-8 md:p-12 rounded-xl shadow-lg">
+            <section class="py-20">
+                <div class="container mx-auto px-4 lg:px-8 max-w-5xl">
+                    <div class="gradient-border-card p-8 md:p-12 reveal">
                         <div class="grid md:grid-cols-3 gap-12">
-                            <div class="md:col-span-2 prose lg:prose-lg max-w-none text-slate-600">
-                                <h3>The Lakeside Premise</h3>
-                                <blockquote class="border-l-4 border-blue-600 pl-6 italic text-slate-700 font-serif">
+                            <div class="md:col-span-2 space-y-6">
+                                <h3 class="text-2xl font-serif text-slate-800">The Lakeside Premise</h3>
+                                <blockquote class="border-l-4 border-teal-400 pl-6 italic text-slate-600 font-serif text-lg">
                                     Why is the approach to mental well-being, a critical component of human capital, so often treated as a compliance afterthought rather than a strategic imperative?
                                 </blockquote>
-                                <p>On the banks of Powai Lake, a place of serene reflection adjacent to the engine of Indian innovation, IIT Bombay, this fundamental question was posed. The answer became the premise for Lakeside Health.</p>
-                                <p>We were founded not just to offer a better service, but to implement a fundamentally different model—one that integrates clinical rigor, technological sophistication, and a deep understanding of corporate dynamics. Our origin is the synthesis of two seemingly disparate worlds: the structured, systems-thinking of engineering and the empathetic, nuanced understanding of human psychology.</p>
-                                <h3>A Duality of Expertise</h3>
-                                <p>This synthesis is embodied by our founder, Rohit Nalwade. His career began in the crucible of technology, building and scaling ventures in AI and IoT. This experience instilled a first-principles approach to problem-solving. A profound personal journey then led him to the Tata Institute of Social Sciences (TISS), where he trained as a counselling psychologist. Lakeside Health is the culmination of this unique duality—a firm engineered for scale, security, and measurable outcomes, yet delivered with the empathy and trust of a clinical practice.</p>
+                                <p class="text-slate-500 leading-relaxed">On the banks of Powai Lake, a place of serene reflection adjacent to IIT Bombay, this fundamental question was posed. The answer became the premise for Lakeside Health.</p>
+                                <p class="text-slate-500 leading-relaxed">We were founded not just to offer a better service, but to implement a fundamentally different model — one that integrates clinical rigor, technological sophistication, and a deep understanding of corporate dynamics.</p>
+                                <h3 class="text-2xl font-serif text-slate-800 pt-4">A Duality of Expertise</h3>
+                                <p class="text-slate-500 leading-relaxed">This synthesis is embodied by our founder, Rohit Nalwade. His career began in the crucible of technology, building and scaling ventures in AI and IoT. A profound personal journey then led him to TISS, where he trained as a counselling psychologist. Lakeside Health is the culmination of this unique duality — a firm engineered for scale, security, and measurable outcomes, yet delivered with the empathy and trust of a clinical practice.</p>
                             </div>
-                            <div class="md:col-span-1 flex flex-col items-center text-center">
-                                <img src="https://placehold.co/400x400/1D4ED8/FFFFFF?text=Rohit+Nalwade" alt="Rohit Nalwade" class="rounded-full h-48 w-48 object-cover mb-4 shadow-md">
-                                <h4 class="text-2xl font-bold">Rohit Nalwade</h4>
-                                <p class="text-slate-500 font-medium">Founder, Lakeside Health</p>
-                                <p class="text-sm text-slate-600 mt-2 leading-relaxed">A unique synthesis of a systems-driven technologist and a TISS-trained clinician.</p>
+                            <div class="flex flex-col items-center text-center">
+                                <div class="w-48 h-48 rounded-2xl overflow-hidden mb-4 shadow-lg ring-4 ring-white">
+                                    <img src="founder-portrait.png" alt="Rohit Nalwade" class="w-full h-full object-cover">
+                                </div>
+                                <h4 class="text-xl font-bold text-slate-800">Rohit Nalwade</h4>
+                                <p class="text-slate-500 font-medium text-sm">Founder, Lakeside Health</p>
+                                <p class="text-xs text-slate-400 mt-2 leading-relaxed">A unique synthesis of a systems-driven technologist and a TISS-trained clinician.</p>
                             </div>
                         </div>
                     </div>
                 </div>
             </section>
         </div>
-        
-        <!-- Contact Page -->
+
+        <!-- ============ CONTACT PAGE ============ -->
         <div id="contact-page" class="page">
-             <section class="py-20 bg-white">
-                <div class="container mx-auto px-4 lg:px-6 text-center">
-                    <h2 class="text-4xl font-black">Let's Build a More Resilient Workforce, Together.</h2>
-                    <p class="mt-4 text-lg text-slate-600 max-w-2xl mx-auto leading-relaxed">We invite you to a confidential, no-obligation strategic briefing to discuss how Lakeside Health can partner with your organization.</p>
-                    <div class="mt-8">
-                        <a href="mailto:rohit.nalwade@lakeside.asia" class="bg-blue-700 text-white px-8 py-4 rounded-lg font-semibold hover:bg-blue-800 transition-colors text-lg">
-                            Request a Strategic Briefing
-                        </a>
+            <section class="hero-gradient min-h-screen flex items-center pt-20">
+                <div class="hero-orb hero-orb-1"></div>
+                <div class="hero-orb hero-orb-2"></div>
+                <div class="container mx-auto px-4 lg:px-8 py-20 relative z-10">
+                    <div class="max-w-2xl mx-auto">
+                        <div class="text-center mb-10">
+                            <div class="badge bg-teal-400/10 text-teal-300 mb-4 mx-auto" style="width:fit-content">Get in Touch</div>
+                            <h2 class="text-3xl md:text-5xl font-serif text-white mb-4">Let's Build a More Resilient Workforce, Together.</h2>
+                            <p class="text-slate-300 leading-relaxed">We invite you to a confidential, no-obligation strategic briefing to discuss how Lakeside Health can partner with your organization.</p>
+                        </div>
+
+                        <!-- Form Container -->
+                        <div id="contact-form-wrapper">
+                            <form id="contact-form" class="dark-glass-card p-8 space-y-5" novalidate>
+                                <!-- Row 1: Name + Company -->
+                                <div class="grid md:grid-cols-2 gap-5">
+                                    <div class="form-group">
+                                        <label for="cf-name" class="block text-xs font-semibold text-slate-300 mb-1.5 uppercase tracking-wider">Your Name <span class="text-red-400">*</span></label>
+                                        <input type="text" id="cf-name" name="name" required class="form-input dark-input" placeholder="Jane Doe">
+                                        <p class="form-error" id="err-name">Please enter your name</p>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="cf-company" class="block text-xs font-semibold text-slate-300 mb-1.5 uppercase tracking-wider">Company <span class="text-red-400">*</span></label>
+                                        <input type="text" id="cf-company" name="company" required class="form-input dark-input" placeholder="Acme Corp">
+                                        <p class="form-error" id="err-company">Please enter your company name</p>
+                                    </div>
+                                </div>
+
+                                <!-- Row 2: Email + Phone -->
+                                <div class="grid md:grid-cols-2 gap-5">
+                                    <div class="form-group">
+                                        <label for="cf-email" class="block text-xs font-semibold text-slate-300 mb-1.5 uppercase tracking-wider">Work Email <span class="text-red-400">*</span></label>
+                                        <input type="email" id="cf-email" name="email" required class="form-input dark-input" placeholder="jane@company.com">
+                                        <p class="form-error" id="err-email">Please enter a valid email address</p>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="cf-phone" class="block text-xs font-semibold text-slate-300 mb-1.5 uppercase tracking-wider">Phone <span class="text-slate-500">(Optional)</span></label>
+                                        <input type="tel" id="cf-phone" name="phone" class="form-input dark-input" placeholder="+91 98765 43210">
+                                        <p class="form-error" id="err-phone">Please enter a valid phone number</p>
+                                    </div>
+                                </div>
+
+                                <!-- Row 3: Company Size + Interest -->
+                                <div class="grid md:grid-cols-2 gap-5">
+                                    <div class="form-group">
+                                        <label for="cf-size" class="block text-xs font-semibold text-slate-300 mb-1.5 uppercase tracking-wider">Company Size</label>
+                                        <select id="cf-size" name="company_size" class="form-input dark-input cursor-pointer">
+                                            <option value="" disabled selected>Select headcount</option>
+                                            <option value="1-50">1 – 50 employees</option>
+                                            <option value="51-200">51 – 200 employees</option>
+                                            <option value="201-500">201 – 500 employees</option>
+                                            <option value="501-2000">501 – 2,000 employees</option>
+                                            <option value="2000+">2,000+ employees</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="cf-interest" class="block text-xs font-semibold text-slate-300 mb-1.5 uppercase tracking-wider">I'm Interested In</label>
+                                        <select id="cf-interest" name="interest" class="form-input dark-input cursor-pointer">
+                                            <option value="" disabled selected>Select a topic</option>
+                                            <option value="Strategic Briefing">Strategic Briefing</option>
+                                            <option value="EAP Replacement Review">EAP Replacement Review</option>
+                                            <option value="CHRO Presentation">CHRO Presentation</option>
+                                            <option value="CFO Presentation">CFO Presentation</option>
+                                            <option value="Partnership Inquiry">Partnership Inquiry</option>
+                                            <option value="General Inquiry">General Inquiry</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <!-- Row 4: Message -->
+                                <div class="form-group">
+                                    <label for="cf-message" class="block text-xs font-semibold text-slate-300 mb-1.5 uppercase tracking-wider">Message</label>
+                                    <textarea id="cf-message" name="message" rows="4" maxlength="1000" class="form-input dark-input resize-none" placeholder="Tell us about your organization's needs, current challenges, or what you'd like to explore..."></textarea>
+                                    <span class="char-counter" id="char-counter">0 / 1,000</span>
+                                </div>
+
+                                <!-- Privacy Consent -->
+                                <div class="flex items-start gap-3">
+                                    <input type="checkbox" id="cf-consent" name="consent" class="mt-1 w-4 h-4 rounded border-slate-500 accent-teal-400 cursor-pointer">
+                                    <label for="cf-consent" class="text-xs text-slate-400 leading-relaxed cursor-pointer">
+                                        I agree that Lakeside Health may store my data and contact me regarding my inquiry. We will never share your information with third parties. <a href="#" class="text-teal-300 hover:underline">Privacy Policy</a>
+                                    </label>
+                                </div>
+                                <p class="form-error" id="err-consent" style="margin-top:-0.75rem">Please accept the privacy policy to continue</p>
+
+                                <!-- Submit Button -->
+                                <button type="submit" id="contact-submit-btn" class="w-full btn-glow py-3.5 rounded-xl font-semibold text-sm flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed">
+                                    <span id="submit-text">Request a Strategic Briefing</span>
+                                    <span id="submit-spinner" class="btn-spinner" style="display:none"></span>
+                                </button>
+
+                                <p class="text-xs text-slate-400 text-center">Or email us directly at <a href="mailto:health@lakesideasia.com" class="text-teal-300 hover:underline">health@lakesideasia.com</a></p>
+                            </form>
+                        </div>
+
+                        <!-- Success State (hidden by default) -->
+                        <div id="contact-success" class="dark-glass-card p-10 text-center" style="display:none">
+                            <div class="success-checkmark">
+                                <svg viewBox="0 0 24 24"><polyline points="4 12 9 17 20 6"/></svg>
+                            </div>
+                            <h3 class="text-2xl font-serif text-white mb-3">Thank You!</h3>
+                            <p class="text-slate-300 mb-2">Your request has been received successfully.</p>
+                            <p class="text-slate-400 text-sm mb-6">A member of our team will reach out within 24 hours to schedule your confidential briefing.</p>
+                            <div class="flex flex-col sm:flex-row gap-3 justify-center">
+                                <button onclick="resetContactForm()" class="btn-outline-light px-6 py-2.5 rounded-xl text-sm font-medium">Submit Another Request</button>
+                                <a href="#home" class="nav-trigger btn-glow px-6 py-2.5 rounded-xl text-sm font-semibold">Back to Home</a>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </section>
         </div>
     </main>
 
-    <footer class="bg-slate-800 text-slate-300 mt-20">
-        <div class="container mx-auto px-4 lg:px-6 py-8">
-            <div class="flex flex-col md:flex-row justify-between items-center">
-                <div class="text-2xl font-bold text-white font-serif">
-                    Lakeside <span class="text-blue-400">Health</span>
+    <footer class="bg-[#07111F] text-slate-400">
+        <div class="container mx-auto px-4 lg:px-8 py-16">
+            <div class="grid md:grid-cols-4 gap-10">
+                <div class="md:col-span-2">
+                    <span class="text-xl font-serif"><span class="text-white">Lakeside</span> <span class="gradient-text font-bold">Health</span></span>
+                    <p class="mt-4 text-sm leading-relaxed max-w-sm">Building resilient workforces through trusted, confidential, and clinically excellent mental health care.</p>
+                    <div class="flex gap-3 mt-5">
+                        <a href="#" class="w-9 h-9 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center hover:bg-white/10 transition-colors" aria-label="LinkedIn">
+                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+                        </a>
+                        <a href="#" class="w-9 h-9 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center hover:bg-white/10 transition-colors" aria-label="Twitter">
+                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+                        </a>
+                    </div>
                 </div>
-                <div class="flex space-x-6 mt-4 md:mt-0">
-                    <a href="#approach" class="nav-trigger text-sm hover:text-white">Our Approach</a>
-                    <a href="#capabilities" class="nav-trigger text-sm hover:text-white">Capabilities</a>
-                    <a href="#business-case" class="nav-trigger text-sm hover:text-white">Business Case</a>
-                    <a href="#about" class="nav-trigger text-sm hover:text-white">About Us</a>
+                <div>
+                    <h4 class="text-white font-semibold text-sm mb-4">Quick Links</h4>
+                    <ul class="space-y-2.5 text-sm">
+                        <li><a href="#approach" class="nav-trigger hover:text-teal-300 transition-colors">Our Approach</a></li>
+                        <li><a href="#capabilities" class="nav-trigger hover:text-teal-300 transition-colors">Capabilities</a></li>
+                        <li><a href="#business-case" class="nav-trigger hover:text-teal-300 transition-colors">Business Case</a></li>
+                        <li><a href="#about" class="nav-trigger hover:text-teal-300 transition-colors">About Us</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-white font-semibold text-sm mb-4">Contact</h4>
+                    <ul class="space-y-2.5 text-sm">
+                        <li><a href="mailto:health@lakesideasia.com" class="hover:text-teal-300 transition-colors">health@lakesideasia.com</a></li>
+                        <li class="text-slate-500">Mumbai, India</li>
+                    </ul>
                 </div>
             </div>
-            <div class="mt-8 border-t border-slate-700 pt-6 text-center text-sm text-slate-400">
-                <p>&copy; 2025 Lakeside Asia Health. All rights reserved.</p>
+            <div class="mt-12 pt-6 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-slate-500">
+                <p>&copy; 2026 Lakeside Asia Health. All rights reserved.</p>
+                <div class="flex gap-6">
+                    <a href="#" class="hover:text-slate-300 transition-colors">Privacy Policy</a>
+                    <a href="#" class="hover:text-slate-300 transition-colors">Terms of Service</a>
+                </div>
             </div>
         </div>
     </footer>
-
-<script>
+    <script>
 document.addEventListener('DOMContentLoaded', function() {
     const pages = document.querySelectorAll('.page');
     const navLinks = document.querySelectorAll('.nav-trigger');
     const mobileMenuButton = document.getElementById('mobile-menu-button');
-    const mobileMenu = document.getElementById('mobile-menu');
+    const mobileOverlay = document.getElementById('mobile-overlay');
+    const mobilePanel = document.getElementById('mobile-panel');
+    const mobileClose = document.getElementById('mobile-close');
+    const mainNav = document.getElementById('main-nav');
     const infographicContainer = document.getElementById('infographic-container');
     const infographicTriggers = document.querySelectorAll('.infographic-trigger');
-
     let activeCharts = [];
 
+    // ---- Scroll Reveal ----
+    const revealObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('visible');
+                revealObserver.unobserve(entry.target);
+            }
+        });
+    }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+
+    function initRevealElements() {
+        document.querySelectorAll('.reveal, .reveal-left, .reveal-right, .reveal-scale').forEach(el => {
+            el.classList.remove('visible');
+            revealObserver.observe(el);
+        });
+    }
+
+    // ---- Number Counter ----
+    const counterObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                animateCounter(entry.target);
+                counterObserver.unobserve(entry.target);
+            }
+        });
+    }, { threshold: 0.5 });
+
+    function animateCounter(el) {
+        const target = parseInt(el.dataset.target);
+        const suffix = el.dataset.suffix || '';
+        const duration = 1500;
+        const start = performance.now();
+        function update(now) {
+            const progress = Math.min((now - start) / duration, 1);
+            const eased = 1 - Math.pow(1 - progress, 3);
+            el.textContent = Math.floor(eased * target) + suffix;
+            if (progress < 1) requestAnimationFrame(update);
+        }
+        requestAnimationFrame(update);
+    }
+
+    function initCounters() {
+        document.querySelectorAll('.counter').forEach(el => {
+            el.textContent = '0';
+            counterObserver.observe(el);
+        });
+    }
+
+    // ---- Navbar scroll ----
+    window.addEventListener('scroll', () => {
+        mainNav.classList.toggle('scrolled', window.scrollY > 30);
+    });
+
+    // ---- Mobile menu ----
+    function openMobile() { mobileOverlay.classList.add('open'); mobilePanel.classList.add('open'); }
+    function closeMobile() { mobileOverlay.classList.remove('open'); mobilePanel.classList.remove('open'); }
+    mobileMenuButton.addEventListener('click', openMobile);
+    mobileClose.addEventListener('click', closeMobile);
+    mobileOverlay.addEventListener('click', closeMobile);
+
+    // ---- SPA Navigation ----
     function navigateTo(hash) {
         if (!hash) hash = '#home';
-        
         pages.forEach(page => {
-            if ('#' + page.id.replace('-page', '') === hash) {
-                page.classList.add('active');
-            } else {
-                page.classList.remove('active');
-            }
+            page.classList.toggle('active', '#' + page.id.replace('-page', '') === hash);
         });
-
         document.querySelectorAll('.nav-link').forEach(link => {
-             if (link.getAttribute('href') === hash) {
-                link.classList.add('active');
-            } else {
-                link.classList.remove('active');
-            }
+            link.classList.toggle('active', link.getAttribute('href') === hash);
         });
-
-        infographicContainer.innerHTML = '';
-        activeCharts.forEach(chart => chart.destroy());
+        if (infographicContainer) { infographicContainer.innerHTML = ''; }
+        activeCharts.forEach(c => c.destroy());
         activeCharts = [];
-        
         window.scrollTo(0, 0);
-        mobileMenu.classList.add('hidden');
+        closeMobile();
+        setTimeout(() => { initRevealElements(); initCounters(); }, 50);
     }
 
     navLinks.forEach(link => {
@@ -472,185 +792,245 @@ document.addEventListener('DOMContentLoaded', function() {
             e.preventDefault();
             const hash = this.getAttribute('href');
             navigateTo(hash);
-            try {
-                history.pushState(null, null, hash);
-            } catch (e) {}
+            try { history.pushState(null, null, hash); } catch(e) {}
         });
     });
 
-    mobileMenuButton.addEventListener('click', function() {
-        mobileMenu.classList.toggle('hidden');
-    });
-    
     infographicTriggers.forEach(button => {
-        button.addEventListener('click', function() {
-            const type = this.dataset.infographic;
-            loadInfographic(type);
-        });
+        button.addEventListener('click', function() { loadInfographic(this.dataset.infographic); });
     });
 
-    function loadInfographic(type) {
-        infographicContainer.innerHTML = '';
-        activeCharts.forEach(chart => chart.destroy());
-        activeCharts = [];
+    // ---- Supabase Client ----
+    const SUPABASE_URL = 'https://etwvifcuomhxmtolgekj.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV0d3ZpZmN1b21oeG10b2xnZWtqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI3MzA0MTAsImV4cCI6MjA4ODMwNjQxMH0.fRQcYq_kiAoTtiyM7GyRTJBHbqML2J9WjkpnmhWDN0g';
+    let supabaseClient = null;
+    try {
+        supabaseClient = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
+    } catch(err) { console.warn('Supabase init failed:', err); }
 
-        if (type === 'chro') {
-            infographicContainer.innerHTML = getCHROInfographicHTML();
-            setupCHROCharts();
-        } else if (type === 'cfo') {
-            infographicContainer.innerHTML = getCFOInfographicHTML();
-            setupCFOCharts();
-        }
-        infographicContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    // ---- Toast Notification ----
+    function showToast(message, type = 'success') {
+        const existing = document.querySelector('.toast');
+        if (existing) existing.remove();
+        const toast = document.createElement('div');
+        toast.className = `toast toast-${type}`;
+        toast.innerHTML = `<div class="flex items-center gap-2">
+            <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                ${type === 'success' ? '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>' : '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>'}
+            </svg>
+            <span>${message}</span>
+        </div>`;
+        document.body.appendChild(toast);
+        requestAnimationFrame(() => { requestAnimationFrame(() => { toast.classList.add('show'); }); });
+        setTimeout(() => { toast.classList.remove('show'); setTimeout(() => toast.remove(), 400); }, 5000);
     }
 
+    // ---- Character Counter ----
+    const msgField = document.getElementById('cf-message');
+    const charCounter = document.getElementById('char-counter');
+    if (msgField && charCounter) {
+        msgField.addEventListener('input', function() {
+            const len = this.value.length;
+            charCounter.textContent = `${len.toLocaleString()} / 1,000`;
+            charCounter.className = 'char-counter' + (len > 900 ? (len >= 1000 ? ' over' : ' warn') : '');
+        });
+    }
+
+    // ---- Inline Validation ----
+    function validateField(id, condition) {
+        const el = document.getElementById(id);
+        const err = document.getElementById('err-' + id.replace('cf-', ''));
+        if (!el) return true;
+        if (!condition) {
+            el.classList.add('error-input');
+            if (err) err.classList.add('visible');
+            return false;
+        } else {
+            el.classList.remove('error-input');
+            if (err) err.classList.remove('visible');
+            return true;
+        }
+    }
+
+    // Clear error on input
+    document.querySelectorAll('#contact-form .form-input, #contact-form input[type=checkbox]').forEach(el => {
+        const event = el.type === 'checkbox' ? 'change' : 'input';
+        el.addEventListener(event, function() {
+            this.classList.remove('error-input');
+            const errId = 'err-' + this.id.replace('cf-', '');
+            const err = document.getElementById(errId);
+            if (err) err.classList.remove('visible');
+        });
+    });
+
+    function validateContactForm() {
+        const name = document.getElementById('cf-name');
+        const company = document.getElementById('cf-company');
+        const email = document.getElementById('cf-email');
+        const phone = document.getElementById('cf-phone');
+        const consent = document.getElementById('cf-consent');
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        const phoneRegex = /^[+]?[\d\s()-]{7,20}$/;
+
+        let valid = true;
+        valid = validateField('cf-name', name && name.value.trim().length >= 2) && valid;
+        valid = validateField('cf-company', company && company.value.trim().length >= 2) && valid;
+        valid = validateField('cf-email', email && emailRegex.test(email.value.trim())) && valid;
+        if (phone && phone.value.trim()) {
+            valid = validateField('cf-phone', phoneRegex.test(phone.value.trim())) && valid;
+        }
+        valid = validateField('cf-consent', consent && consent.checked) && valid;
+        return valid;
+    }
+
+    // ---- Contact Form Submit ----
+    const contactForm = document.getElementById('contact-form');
+    const submitBtn = document.getElementById('contact-submit-btn');
+    const submitText = document.getElementById('submit-text');
+    const submitSpinner = document.getElementById('submit-spinner');
+
+    function setFormLoading(loading) {
+        if (!submitBtn) return;
+        submitBtn.disabled = loading;
+        submitText.textContent = loading ? 'Submitting...' : 'Request a Strategic Briefing';
+        submitSpinner.style.display = loading ? 'inline-block' : 'none';
+    }
+
+    if (contactForm) {
+        contactForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            if (!validateContactForm()) return;
+
+            setFormLoading(true);
+            const fd = new FormData(this);
+            const payload = {
+                name: fd.get('name')?.trim(),
+                company: fd.get('company')?.trim(),
+                email: fd.get('email')?.trim(),
+                phone: fd.get('phone')?.trim() || null,
+                company_size: fd.get('company_size') || null,
+                interest: fd.get('interest') || null,
+                message: fd.get('message')?.trim() || null,
+                source_page: 'website'
+            };
+
+            try {
+                if (supabaseClient) {
+                    const { data, error } = await supabaseClient
+                        .from('contact_submissions')
+                        .insert([payload]);
+                    if (error) throw error;
+                }
+                // Show success
+                document.getElementById('contact-form-wrapper').style.display = 'none';
+                document.getElementById('contact-success').style.display = 'block';
+                showToast('Your request has been submitted successfully!', 'success');
+            } catch (err) {
+                console.error('Submission error:', err);
+                showToast('Something went wrong. Please try again or email us directly.', 'error');
+            } finally {
+                setFormLoading(false);
+            }
+        });
+    }
+
+    // ---- Reset Contact Form ----
+    window.resetContactForm = function() {
+        document.getElementById('contact-form-wrapper').style.display = 'block';
+        document.getElementById('contact-success').style.display = 'none';
+        if (contactForm) contactForm.reset();
+        if (charCounter) { charCounter.textContent = '0 / 1,000'; charCounter.className = 'char-counter'; }
+    };
+
+    // ---- Init ----
     const initialHash = window.location.hash || '#home';
     navigateTo(initialHash);
+    window.addEventListener('hashchange', () => navigateTo(window.location.hash));
 
-    window.addEventListener('hashchange', function() {
-        navigateTo(window.location.hash);
-    });
-
-    function getCHROInfographicHTML() {
-        return `
-            <div class="bg-gray-100 p-4 md:p-8 rounded-lg shadow-inner border">
-                <section class="text-center mb-12">
-                    <h2 class="text-3xl md:text-4xl font-black gradient-text-chiro mb-4">A Strategic Briefing for CHROs</h2>
-                    <p class="text-slate-600 max-w-2xl mx-auto leading-relaxed">Moving beyond legacy EAPs to cultivate true organizational resilience.</p>
-                </section>
-                
-                <div class="space-y-12">
-                    <div class="bg-white p-6 rounded-xl shadow-lg">
-                        <h3 class="text-2xl font-bold text-slate-800 mb-4 text-center">The EAP Paradox: High Investment vs. Low Impact</h3>
-                        <div class="grid md:grid-cols-2 gap-8 items-center">
-                            <div class="text-center border-r pr-8">
-                                <p class="text-slate-500 font-semibold">Typical EAP Utilization Rate</p>
-                                <p class="text-6xl font-black text-red-500 my-4">&lt; 5%</p>
-                                <p class="text-slate-600 text-sm leading-relaxed">This low engagement signifies a fundamental failure to build the psychological safety required for employees to seek help.</p>
-                            </div>
-                            <div class="text-center">
-                                <h4 class="text-lg font-bold text-slate-800 mb-2">Need vs. Engagement Gap</h4>
-                                <div class="chart-container"><canvas id="eapParadoxChart"></canvas></div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="bg-white p-6 rounded-xl shadow-lg">
-                         <h3 class="text-2xl font-bold text-slate-800 mb-4 text-center">The Nuance of Partner Selection: A Framework for Strategic Vetting</h3>
-                         <div class="prose prose-sm max-w-none text-slate-600 text-left mb-8">
-                            <p>Choosing a mental health partner is a critical decision that impacts culture, retention, and performance. A transactional vendor might check a box, but a true strategic partner becomes an asset. The distinction lies in four key areas:</p>
-                            <ul>
-                                <li><strong>Clinical Governance:</strong> Is care delivered by full-time, vetted professionals, or a loose network of contractors? The former ensures quality and accountability; the latter introduces significant risk.</li>
-                                <li><strong>In-House Capability:</strong> Does the partner have a deep, multidisciplinary team (counselling, clinical, psychiatric)? This is essential for managing a full continuum of care without risky hand-offs.</li>
-                                <li><strong>Cultural Competence:</strong> Does the service reflect your workforce's diversity through language and cultural understanding?</li>
-                                <li><strong>Philosophy:</strong> Is the model built on a client-first ethos that prioritizes the therapeutic alliance, or on maximizing session volume? The answer determines whether you build trust or just another underutilized benefit.</li>
-                            </ul>
-                         </div>
-                         <div class="bar-chart-container"><canvas id="capabilityChart"></canvas></div>
-                         <p class="text-center mt-4 text-sm text-slate-500 leading-relaxed">Our in-house model provides superior clinical governance and a seamless continuum of care compared to the fragmented, inconsistent quality of typical aggregator models.</p>
-                    </div>
-                </div>
-            </div>
-        `;
-    }
-
-    function getCFOInfographicHTML() {
-        return `
-            <div class="bg-gray-100 p-4 md:p-8 rounded-lg shadow-inner border">
-                 <section class="text-center mb-12">
-                    <h2 class="text-3xl md:text-4xl font-black gradient-text-cfo mb-4">A Financial Briefing for CFOs</h2>
-                    <p class="text-slate-600 max-w-2xl mx-auto leading-relaxed">Analyzing workforce well-being as a core financial strategy to mitigate risk and drive ROI.</p>
-                </section>
-                <div class="space-y-12">
-                    <div class="bg-white p-6 rounded-xl shadow-lg">
-                        <h3 class="text-2xl font-bold text-slate-800 mb-4 text-center">Quantifying the Annual Cost of Inaction</h3>
-                        <p class="text-slate-600 text-center mb-8 max-w-3xl mx-auto leading-relaxed">For a typical 10,000-employee enterprise, the financial impact is a multi-crore liability. An effective mental health strategy is a direct lever to control these escalating costs.</p>
-                        <div class="waterfall-chart-container"><canvas id="waterfallChart"></canvas></div>
-                        <div class="mt-6 prose prose-sm max-w-none text-slate-600 text-left">
-                            <h4 class="font-bold">Model Assumptions & Methodology:</h4>
-                            <p>This illustrative model is based on conservative industry benchmarks and academic research (e.g., WHO, NIMHANS). Key assumptions include:</p>
-                            <ul>
-                                <li><strong>Productivity Loss:</strong> Assumes ~15-20% of the workforce is impacted by mental health challenges, leading to a quantifiable reduction in output (presenteeism).</li>
-                                <li><strong>Attrition Costs:</strong> Calculates the cost of replacing employees who leave due to burnout or stress, estimated at 1.5x their annual salary.</li>
-                                <li><strong>Absenteeism:</strong> Models the cost of additional sick days taken per affected employee per year.</li>
-                            </ul>
-                            <p>This total represents a direct, recurring drag on your operating margin.</p>
-                        </div>
-                    </div>
-                    <div class="bg-white p-6 rounded-xl shadow-lg">
-                         <h3 class="text-2xl font-bold text-slate-800 mb-4 text-center">Financial Modeling: From Cost Center to Value Driver</h3>
-                         <p class="text-slate-600 text-center mb-8 max-w-3xl mx-auto leading-relaxed">This model projects the financial outcomes over a three-year period. A strategic partnership is not an unrecoverable expense; it is an investment in human capital that yields a measurable return.</p>
-                        <div class="line-chart-container"><canvas id="roiChart"></canvas></div>
-                        <div class="mt-6 prose prose-sm max-w-none text-slate-600 text-left">
-                            <h4 class="font-bold">ROI Projection Methodology:</h4>
-                            <p>The model contrasts two scenarios:</p>
-                            <ul>
-                                <li><strong>Cost of Inaction (Red Line):</strong> The compounding annual financial drain from the metrics above, assuming no effective intervention.</li>
-                                <li><strong>Net Financial Impact with Lakeside (Green Line):</strong> This is calculated as <strong>(Savings from Reduced Costs) - (Lakeside Program Investment)</strong>. We assume a phased, conservative reduction in productivity loss and attrition costs as program utilization and efficacy increase over three years.</li>
-                            </ul>
-                            <p>The crossover point in Year 2 demonstrates when the program transitions from a cost center to a value-generating initiative, delivering a significant positive ROI by Year 3 and protecting shareholder value.</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        `;
+    // ---- Infographic Loader ----
+    function loadInfographic(type) {
+        infographicContainer.innerHTML = '';
+        activeCharts.forEach(c => c.destroy());
+        activeCharts = [];
+        if (type === 'chro') { infographicContainer.innerHTML = getCHROInfographicHTML(); setupCHROCharts(); }
+        else if (type === 'cfo') { infographicContainer.innerHTML = getCFOInfographicHTML(); setupCFOCharts(); }
+        infographicContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
 
     const wrapLabel = (label) => {
         if (typeof label !== 'string') return label;
         if (label.length > 16) {
-            const words = label.split(' '); let currentLine = ''; const lines = [];
-            words.forEach(word => {
-                if ((currentLine + ' ' + word).trim().length > 16 && currentLine.length > 0) {
-                    lines.push(currentLine); currentLine = word;
-                } else { currentLine += (currentLine ? ' ' : '') + word; }
-            });
-            lines.push(currentLine); return lines;
+            const words = label.split(' '); let cur = ''; const lines = [];
+            words.forEach(w => { if ((cur + ' ' + w).trim().length > 16 && cur.length > 0) { lines.push(cur); cur = w; } else { cur += (cur ? ' ' : '') + w; } });
+            lines.push(cur); return lines;
         }
         return label;
     };
+    const tooltipTitleCb = (items) => { let l = items[0].chart.data.labels[items[0].dataIndex]; return Array.isArray(l) ? l.join(' ') : l; };
+    const commonTooltipOpts = { plugins: { tooltip: { callbacks: { title: tooltipTitleCb } } } };
 
-    const tooltipTitleCallback = (tooltipItems) => {
-        const item = tooltipItems[0]; let label = item.chart.data.labels[item.dataIndex];
-        if (Array.isArray(label)) { return label.join(' '); }
-        return label;
-    };
-    
-    const commonTooltipOptions = { plugins: { tooltip: { callbacks: { title: tooltipTitleCallback } } } };
+    function getCHROInfographicHTML() {
+        return `<div class="gradient-border-card p-4 md:p-8">
+            <section class="text-center mb-12"><h2 class="text-3xl md:text-4xl font-serif gradient-text-chiro mb-4">A Strategic Briefing for CHROs</h2><p class="text-slate-500 max-w-2xl mx-auto">Moving beyond legacy EAPs to cultivate true organizational resilience.</p></section>
+            <div class="space-y-12">
+                <div class="bg-slate-50 p-6 rounded-xl border border-slate-100">
+                    <h3 class="text-xl font-bold text-slate-800 mb-4 text-center">The EAP Paradox: High Investment vs. Low Impact</h3>
+                    <div class="grid md:grid-cols-2 gap-8 items-center">
+                        <div class="text-center md:border-r md:pr-8"><p class="text-slate-500 font-semibold">Typical EAP Utilization Rate</p><p class="text-6xl font-extrabold text-red-500 my-4">&lt; 5%</p><p class="text-slate-500 text-sm">This low engagement signifies a fundamental failure to build psychological safety.</p></div>
+                        <div class="text-center"><h4 class="text-lg font-bold text-slate-800 mb-2">Need vs. Engagement Gap</h4><div class="chart-container"><canvas id="eapParadoxChart"></canvas></div></div>
+                    </div>
+                </div>
+                <div class="bg-slate-50 p-6 rounded-xl border border-slate-100">
+                    <h3 class="text-xl font-bold text-slate-800 mb-4 text-center">A Framework for Strategic Vetting</h3>
+                    <div class="text-sm text-slate-500 max-w-none text-left mb-8 space-y-2">
+                        <p>Choosing a mental health partner impacts culture, retention, and performance. The distinction lies in four key areas:</p>
+                        <ul class="list-disc pl-5 space-y-1"><li><strong>Clinical Governance:</strong> Full-time, vetted professionals vs. loose contractor networks.</li><li><strong>In-House Capability:</strong> Deep, multidisciplinary team for full continuum of care.</li><li><strong>Cultural Competence:</strong> Language and cultural understanding reflecting your workforce diversity.</li><li><strong>Philosophy:</strong> Client-first ethos prioritizing the therapeutic alliance.</li></ul>
+                    </div>
+                    <div class="bar-chart-container"><canvas id="capabilityChart"></canvas></div>
+                    <p class="text-center mt-4 text-xs text-slate-400">Our in-house model provides superior clinical governance vs. typical aggregator models.</p>
+                </div>
+            </div></div>`;
+    }
+
+    function getCFOInfographicHTML() {
+        return `<div class="gradient-border-card p-4 md:p-8">
+            <section class="text-center mb-12"><h2 class="text-3xl md:text-4xl font-serif gradient-text-cfo mb-4">A Financial Briefing for CFOs</h2><p class="text-slate-500 max-w-2xl mx-auto">Analyzing workforce well-being as a core financial strategy.</p></section>
+            <div class="space-y-12">
+                <div class="bg-slate-50 p-6 rounded-xl border border-slate-100">
+                    <h3 class="text-xl font-bold text-slate-800 mb-4 text-center">Quantifying the Annual Cost of Inaction</h3>
+                    <p class="text-slate-500 text-center text-sm mb-8 max-w-3xl mx-auto">For a typical 10,000-employee enterprise, the financial impact is a multi-crore liability.</p>
+                    <div class="waterfall-chart-container"><canvas id="waterfallChart"></canvas></div>
+                    <div class="mt-6 text-sm text-slate-500 space-y-2">
+                        <h4 class="font-bold text-slate-700">Model Assumptions:</h4>
+                        <ul class="list-disc pl-5 space-y-1"><li><strong>Productivity Loss:</strong> ~15-20% workforce impacted, quantifiable output reduction.</li><li><strong>Attrition Costs:</strong> Replacement cost estimated at 1.5x annual salary.</li><li><strong>Absenteeism:</strong> Additional sick days per affected employee per year.</li></ul>
+                    </div>
+                </div>
+                <div class="bg-slate-50 p-6 rounded-xl border border-slate-100">
+                    <h3 class="text-xl font-bold text-slate-800 mb-4 text-center">Financial Modeling: From Cost Center to Value Driver</h3>
+                    <p class="text-slate-500 text-center text-sm mb-8 max-w-3xl mx-auto">A strategic partnership yields a measurable 3-year ROI.</p>
+                    <div class="line-chart-container"><canvas id="roiChart"></canvas></div>
+                    <div class="mt-6 text-sm text-slate-500 space-y-2">
+                        <h4 class="font-bold text-slate-700">ROI Projection:</h4>
+                        <ul class="list-disc pl-5 space-y-1"><li><strong>Cost of Inaction (Red):</strong> Compounding annual financial drain.</li><li><strong>Net Impact with Lakeside (Green):</strong> (Savings) − (Investment). Crossover in Year 2.</li></ul>
+                    </div>
+                </div>
+            </div></div>`;
+    }
 
     function setupCHROCharts() {
-        const eapParadoxCtx = document.getElementById('eapParadoxChart').getContext('2d');
-        activeCharts.push(new Chart(eapParadoxCtx, {
-            type: 'doughnut',
-            data: { labels: ['Employees in Need', 'Engaged with EAP'], datasets: [{ data: [40, 5], backgroundColor: ['#60A5FA', '#EF4444'], borderColor: ['#F9FAFB'], borderWidth: 4, }] },
-            options: { responsive: true, maintainAspectRatio: false, cutout: '70%', plugins: { legend: { position: 'bottom' }, tooltip: { callbacks: { title: (tooltipItems) => tooltipItems[0].label, label: function(context) { return `${context.raw}% of Workforce`; } } } } }
-        }));
-
-        const capabilityCtx = document.getElementById('capabilityChart').getContext('2d');
-        activeCharts.push(new Chart(capabilityCtx, {
-            type: 'bar',
-            data: { labels: [wrapLabel('Clinical Quality Control'), wrapLabel('Continuum of Care'), wrapLabel('Data & Security Governance')], datasets: [ { label: 'In-House Partner (Lakeside)', data: [95, 90, 98], backgroundColor: '#3B82F6', borderRadius: 4, }, { label: 'Typical Aggregator Model', data: [40, 30, 60], backgroundColor: '#9CA3AF', borderRadius: 4, } ] },
-            options: { responsive: true, maintainAspectRatio: false, ...commonTooltipOptions, scales: { y: { beginAtZero: true, max: 100, title: { display: true, text: 'Capability & Governance Score (%)' } } }, plugins: { ...commonTooltipOptions.plugins, legend: { position: 'bottom' } } }
-        }));
+        const ctx1 = document.getElementById('eapParadoxChart').getContext('2d');
+        activeCharts.push(new Chart(ctx1, { type:'doughnut', data:{ labels:['Employees in Need','Engaged with EAP'], datasets:[{ data:[40,5], backgroundColor:['#60A5FA','#EF4444'], borderColor:['#fff'], borderWidth:4 }] }, options:{ responsive:true, maintainAspectRatio:false, cutout:'70%', plugins:{ legend:{position:'bottom'}, tooltip:{ callbacks:{ title:i=>i[0].label, label:c=>`${c.raw}% of Workforce` } } } } }));
+        const ctx2 = document.getElementById('capabilityChart').getContext('2d');
+        activeCharts.push(new Chart(ctx2, { type:'bar', data:{ labels:[wrapLabel('Clinical Quality Control'),wrapLabel('Continuum of Care'),wrapLabel('Data & Security Governance')], datasets:[ {label:'In-House Partner (Lakeside)',data:[95,90,98],backgroundColor:'#2DD4BF',borderRadius:6}, {label:'Typical Aggregator Model',data:[40,30,60],backgroundColor:'#94A3B8',borderRadius:6} ] }, options:{ responsive:true, maintainAspectRatio:false, ...commonTooltipOpts, scales:{ y:{beginAtZero:true,max:100,title:{display:true,text:'Capability Score (%)'}} }, plugins:{...commonTooltipOpts.plugins, legend:{position:'bottom'}} } }));
     }
 
     function setupCFOCharts() {
-        const waterfallCtx = document.getElementById('waterfallChart').getContext('2d');
-        activeCharts.push(new Chart(waterfallCtx, {
-            type: 'bar',
-            data: { labels: ['Productivity Loss', 'Attrition Costs', 'Absenteeism', 'Total Financial Drain'], datasets: [{ label: 'Cost (in ₹ Cr)', data: [12, 8, 4, 24], backgroundColor: ['rgba(239, 68, 68, 0.7)', 'rgba(239, 68, 68, 0.7)', 'rgba(239, 68, 68, 0.7)', 'rgba(30, 64, 175, 0.7)'], borderColor: ['rgba(239, 68, 68, 1)', 'rgba(239, 68, 68, 1)', 'rgba(239, 68, 68, 1)', 'rgba(30, 64, 175, 1)'], borderWidth: 1, }] },
-            options: { responsive: true, maintainAspectRatio: false, ...commonTooltipOptions, plugins: { ...commonTooltipOptions.plugins, legend: { display: false } }, scales: { y: { beginAtZero: true, title: { display: true, text: 'Annual Cost (in ₹ Crores)' } } } }
-        }));
-
-        const roiCtx = document.getElementById('roiChart').getContext('2d');
-        activeCharts.push(new Chart(roiCtx, {
-            type: 'line',
-            data: { labels: ['Year 0', 'Year 1', 'Year 2', 'Year 3'], datasets: [ { label: 'Cost of Inaction (Cumulative)', data: [0, -24, -48, -72], borderColor: '#EF4444', backgroundColor: 'rgba(239, 68, 68, 0.1)', fill: true, tension: 0.1 }, { label: 'Net Financial Impact with Lakeside (Cumulative)', data: [0, -14, -2, 15], borderColor: '#22C55E', backgroundColor: 'rgba(34, 197, 94, 0.1)', fill: true, tension: 0.1 } ] },
-            options: { responsive: true, maintainAspectRatio: false, ...commonTooltipOptions, scales: { y: { title: { display: true, text: 'Cumulative Financial Impact (in ₹ Crores)' }, ticks: { callback: function(value) { return '₹' + value + ' Cr'; } } } }, plugins: { ...commonTooltipOptions.plugins, legend: { position: 'bottom' }, tooltip: { callbacks: { title: (tooltipItems) => tooltipItems[0].label, label: function(context) { return `${context.dataset.label}: ₹${context.raw} Cr`; } } } } }
-        }));
+        const ctx1 = document.getElementById('waterfallChart').getContext('2d');
+        activeCharts.push(new Chart(ctx1, { type:'bar', data:{ labels:['Productivity Loss','Attrition Costs','Absenteeism','Total Drain'], datasets:[{label:'Cost (₹ Cr)',data:[12,8,4,24],backgroundColor:['rgba(239,68,68,0.7)','rgba(239,68,68,0.7)','rgba(239,68,68,0.7)','rgba(37,99,235,0.7)'],borderColor:['rgba(239,68,68,1)','rgba(239,68,68,1)','rgba(239,68,68,1)','rgba(37,99,235,1)'],borderWidth:1,borderRadius:6}] }, options:{ responsive:true, maintainAspectRatio:false, ...commonTooltipOpts, plugins:{...commonTooltipOpts.plugins,legend:{display:false}}, scales:{y:{beginAtZero:true,title:{display:true,text:'Annual Cost (₹ Crores)'}}} } }));
+        const ctx2 = document.getElementById('roiChart').getContext('2d');
+        activeCharts.push(new Chart(ctx2, { type:'line', data:{ labels:['Year 0','Year 1','Year 2','Year 3'], datasets:[ {label:'Cost of Inaction',data:[0,-24,-48,-72],borderColor:'#EF4444',backgroundColor:'rgba(239,68,68,0.1)',fill:true,tension:0.1}, {label:'Net Impact with Lakeside',data:[0,-14,-2,15],borderColor:'#22C55E',backgroundColor:'rgba(34,197,94,0.1)',fill:true,tension:0.1} ] }, options:{ responsive:true, maintainAspectRatio:false, ...commonTooltipOpts, scales:{y:{title:{display:true,text:'Cumulative Impact (₹ Cr)'},ticks:{callback:v=>'₹'+v+' Cr'}}}, plugins:{...commonTooltipOpts.plugins, legend:{position:'bottom'}, tooltip:{callbacks:{title:i=>i[0].label,label:c=>`${c.dataset.label}: ₹${c.raw} Cr`}}} } }));
     }
 });
 </script>
-
 </body>
 </html>
